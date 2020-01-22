@@ -1,6 +1,8 @@
 import sys; sys.executable
 from qiskit.quantum_info import Operator
 
+#naomi practice comment
+
 class stage:
     
     def __init__(self, Qiskit_circuit):
