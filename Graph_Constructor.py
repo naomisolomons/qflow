@@ -5,8 +5,8 @@ import json
 
 class Graph_Wrapper:
     
-    def __init__(self, level_operator, input_state, level_number):
-        self.level_number = level_number
+    def __init__(self, level_operator, input_state):
+        
         self.level_operator = level_operator
         self.input_StateVector = input_state
         self.state_vector = input_state.data
@@ -26,7 +26,7 @@ class Graph_Wrapper:
             self.graph.nodes[nodes]['y_pos'] = self.values[nodes][1]
             
         self.graph = nx.relabel_nodes(self.graph,self.mapping,False)
-        
+        self.JSON = json.dumps(nx.node_link_data(self.graph))
         
     def support(self,Matrix):
         support = np.zeros((Matrix.shape), dtype='int32')
@@ -50,9 +50,7 @@ class Graph_Wrapper:
         
         return flow_matrix
     
-    def output_JSON(self):
-        with open(r'C:\Users\sm15883\.spyder-py3\git_Qflow\level_data_{}.txt'.format(self.level_number),'w') as write_file:
-            self.JSON = json.dump(nx.node_link_data(self.graph),write_file)
+    
 
 if __name__== '__main__':
     from Qflow_Level_Builder import stage
@@ -66,8 +64,8 @@ if __name__== '__main__':
     qs.y(0)
 
     Stage_One = stage(qs)
-    G_wrapper = Graph_Wrapper(Stage_One.levelOperator(1),Stage_One.levelState(1),1)
-    G_wrapper.output_JSON()
+    G_wrapper = Graph_Wrapper(Stage_One.levelOperator(1),Stage_One.levelState(1))
+    a = G_wrapper.output_JSON()
     
     
 
