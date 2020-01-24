@@ -1,6 +1,7 @@
 import sys; sys.executable
 from qiskit.quantum_info import Operator
-
+from qiskit.quantum_info import Statevector
+import numpy as np
 #naomi practice comment
 
 class stage:
@@ -8,10 +9,11 @@ class stage:
     def __init__(self, Qiskit_circuit):
         self.circuit = Qiskit_circuit
         self.num_levels = (Qiskit_circuit.depth())
-        
+        self.array = np.zeros(Operator(self.circuit).data.shape[0])
+        self.array[0] = 1
+        self.initial = Statevector(self.array)
         
     def reduce(self,circ):
-        #Copy_circuit = self.circuit.copy()
         Initial_depth = circ.depth()
         depth = circ.depth()
         data = circ.data
@@ -40,8 +42,20 @@ class stage:
         leveloperator = Operator(QC) 
         return leveloperator
     
+    def levelState(self,Level_Num):
+        levelstate = self.initial
+        for i in range(1,Level_Num+1):
+            levelstate = levelstate.evolve(self.levelOperator(i))
+        return levelstate
 
-
-
-
+if __name__== '__main__':
+    from qiskit import QuantumCircuit
+    
+    qs = QuantumCircuit(2)
+    qs.h((0,1))
+    qs.x((0,1))
+    stage = stage(qs)
+    print(stage.num_levels)
+    print(stage.levelOperator(1))
+    print(stage.levelOperator(2))
 
