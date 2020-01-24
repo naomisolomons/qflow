@@ -1,17 +1,8 @@
-from Qflow_Level_Builder import stage
-from qiskit import QuantumCircuit
 import numpy as np
 import networkx as nx
-from qiskit.quantum_info import Statevector
 import json
-qs = QuantumCircuit(2)
-qs.h((0,1))
-qs.cx(1,0)
-#qs.x((0,1,2,3,4))
-#qs.y((0,1,2,3,4))
 
-Stage_One = stage(qs)
-Input = Statevector([0.5,0.5,0.5,0.5])
+
 class Graph_Wrapper:
     
     def __init__(self, level_operator, input_state):
@@ -23,12 +14,19 @@ class Graph_Wrapper:
         self.support = self.support(self.unitary)    
         self.prob_flows = self.probability_flows()
         
-        self.graph = nx.MultiDiGraph(self.support)
+        self.graph = nx.DiGraph(self.support)
         self.mapping = {node:"{0:b}".format(node) for node in self.graph.nodes()}
-        for source, target in self.graph.edges():
-            self.graph[source][target][0]['weight'] = self.prob_flows[source,target]       
+        self.values = nx.circular_layout(self.graph)
+        
+        for source, target in self.graph.edges:
+            self.graph[source][target]['weight'] = self.prob_flows[source,target]       
+        
+        for nodes in self.graph.nodes:
+            self.graph.nodes[nodes]['x_pos'] = self.values[nodes][0]
+            self.graph.nodes[nodes]['y_pos'] = self.values[nodes][1]
+            
         self.graph = nx.relabel_nodes(self.graph,self.mapping,False)
-        self.JSON = json.dumps(nx.node_link_data(self.graph))
+        
         
     def support(self,Matrix):
         support = np.zeros((Matrix.shape), dtype='int32')
@@ -51,10 +49,27 @@ class Graph_Wrapper:
                 flow_matrix[i,j] = (((self.state_vector[j]*self.unitary[i,j]).conjugate())*A).real
         
         return flow_matrix
-       
-G_wrapper = Graph_Wrapper(Stage_One.levelOperator(1),Input)
     
-print(G_wrapper.JSON)
-   
+    def output_JSON(self):
+        with open(r'C:\Users\sm15883\.spyder-py3\git_Qflow\data.txt','w') as write_file:
+            self.JSON = json.dump(nx.node_link_data(self.graph),write_file)
 
+if __name__== '__main__':
+    from Qflow_Level_Builder import stage
+    from qiskit import QuantumCircuit
+    from qiskit.quantum_info import Statevector
+    
+    qs = QuantumCircuit(2)
+    qs.h((0,1))
+    qs.cx(1,0)
+    #qs.x((0,1,2,3,4))
+    #qs.y((0,1,2,3,4))
+
+    Stage_One = stage(qs)
+    Input = Statevector([0.5,0.5,0.5,0.5])
+    
+    G_wrapper = Graph_Wrapper(Stage_One.levelOperator(1),Input)
+    G_wrapper.output_JSON()
+   
+    
 
