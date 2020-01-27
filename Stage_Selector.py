@@ -2,7 +2,8 @@ from Qflow_Level_Builder import stage
 from Graph_Constructor import Graph_Wrapper
 from qiskit import QuantumCircuit
 
-
+#This module is currently designed to hold the circuit data needed to constuct each stage. The stage selection is currently made
+#using the input function but this could be changed to used a tkinter GUI
 class Stage_Holder:
     
     def __init__(self):
@@ -18,15 +19,15 @@ class Stage_Holder:
 if __name__== '__main__':
     
     seq= 1 
-    w= 1
-    h=1
+    w= 500
+    h=500
     node_size=1
     
     Stages = Stage_Holder()
-    stagenumber = input('Pick Stage:')
+    stagenumber = input('Pick Stage:') #takes user input
     print('Stage',stagenumber,'loaded')
     
-    if stagenumber == '1':
+    if stagenumber == '1': #if stage 1 is selected all the level graphs are created a json strings and stored in an array
         Stage_Selected = Stages.stage_1
         stage = stage(Stages.stage_1)
         graphs = []
@@ -49,7 +50,9 @@ if __name__== '__main__':
         print('Invalid Selection')
         
 #############################################################################################      
-    for levels in range(1,stage.num_levels+1):    
+    # This sections creates a HTML webpage for each levels of the stage. 
+    #This can the code can be modified to open the first level automatically
+    for levels in range(0,stage.num_levels):    
         html1 = """<!DOCTYPE html>
             <meta charset="utf-8">
             <style> body { font-family: sans-serif; }
@@ -66,7 +69,9 @@ if __name__== '__main__':
         }
             </style>
             <body>
-            <div class="div2"></div>
+            <div class="div2">
+            <p>Hello There</p>
+            </div>
         <div  class="div1" style="overflow:auto" id="graph-output-1" /div>
             <script src="require.js"></script>
             <script>
