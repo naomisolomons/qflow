@@ -33,7 +33,12 @@ if __name__== '__main__':
         graphs = []
         for levels in range(1,stage.num_levels+1):
             G_wrapper = Graph_Wrapper(stage.levelOperator(levels),stage.levelState(levels))
-            graphs.append(G_wrapper.JSON)
+            temp = G_wrapper.data
+            del temp["directed"]
+            del temp["multigraph"]
+            del temp["graph"]
+            graphs.append(temp)
+        print(graphs[0])    
         print('Level files generated')
         
     elif stagenumber == '2':
@@ -42,8 +47,11 @@ if __name__== '__main__':
         graphs = []
         for levels in range(1,stage.num_levels+1):
             G_wrapper = Graph_Wrapper(stage.levelOperator(levels),stage.levelState(levels))
-            G_wrapper.output_JSON()
-            graphs.append(G_wrapper.output_JSON())
+            temp = G_wrapper.data
+            del temp["directed"]
+            del temp["multigraph"]
+            del temp["graph"]
+            graphs.append(temp)
         print('Level files generated')
         
     else:
@@ -54,48 +62,35 @@ if __name__== '__main__':
     #This can the code can be modified to open the first level automatically
     for levels in range(0,stage.num_levels):    
         html1 = """<!DOCTYPE html>
-            <meta charset="utf-8">
-            <style> body { font-family: sans-serif; }
-        .div1 {
-          margin: auto;
-          width: 1000px;
-          height: 500px;
-        }
+            <html lang = "en">
+            <head>
+                <meta charset="utf-8">
+                <title>Qflow - A Quantum Game</title>
+                <style type="text/css">
+                    canvas {
+                        border: 1px solid black;
+                    }
+                    
+                    body {
+                        margin: 0;
+                    }
+                    
+                    div1 {
+                        display: none
+                    }
+                
+                </style>
+            </head>
+            <body>"""
+        html2=        """<div class = "div1" data-graph = "{}"></div>""".format(graphs[levels])
+                
+        html3=        """<canvas></canvas>
+                <script src="Qflow.js"></script>
+            </body>
+            </html>"""
         
-        .div2 {
-          margin: auto;
-          width: 500px;
-          height: 200px;
-        }
-            </style>
-            <body>
-            <div class="div2">
-            <p>Hello There</p>
-            </div>
-        <div  class="div1" style="overflow:auto" id="graph-output-1" /div>
-            <script src="require.js"></script>
-            <script>
-            require.config({
-                    paths: {
-                            d3: "d3.v4.min"
-                            }
-                    });
-            require.config({
-                    paths: {
-                            Qflow: "Qflow"
-                            }
-                    });
-                        """
-        
-        html2= """require(['Qflow'], function(Qflow) {{
-                    Qflow.showGraph('#graph-output-{0}',
-                    JSON.parse('{1}'), {2}, {3}, {4});
-                }});
-                </script>""".format(seq, graphs[levels], w, h, node_size) 
-        html = html1+html2
-        
-        
+        html = html1+html2+html3
         #This writes the generated HTML version of the graph to a html file which can be viewed in browser
-        f = open(r"C:\Users\sm15883\.spyder-py3\git_Qflow\Qflow.html", "w")
+        f = open(r"C:\Users\sm15883\.spyder-py3\git_Qflow\Qflow_Level{}.html".format(levels+1), "w")
         f.write(html)
         f.close()

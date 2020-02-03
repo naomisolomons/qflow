@@ -1,6 +1,6 @@
 import numpy as np
 import networkx as nx
-import json
+
 #This module takes a level unitary and initial state and formats a networkx 
 #graph object with the required data and then converts this object into a JSON string
 
@@ -16,8 +16,8 @@ class Graph_Wrapper:
         self.prob_flows = self.probability_flows()
         
         self.graph = nx.DiGraph(self.support) #This defines as Directed Graph object this is structred as a dict of dicts
-        self.mapping = {node:"{0:b}".format(node) for node in self.graph.nodes()} #This defines a maps the node lables to there representation in the computational basis
-        self.values = nx.circular_layout(self.graph) #This defines an array of x,y coridinates that will give the graph a circualr structure when drawn
+        #self.mapping = {node:"{0:b}".format(node) for node in self.graph.nodes()} #This defines a maps the node lables to there representation in the computational basis
+        self.values = nx.circular_layout(self.graph,300) #This defines an array of x,y coridinates that will give the graph a circualr structure when drawn
         
         for source, target in self.graph.edges: # assigns the weight of each edge the corresponding value of the flow matrix
             self.graph[source][target]['weight'] = self.prob_flows[source,target]       
@@ -26,8 +26,10 @@ class Graph_Wrapper:
             self.graph.nodes[nodes]['x_pos'] = self.values[nodes][0]
             self.graph.nodes[nodes]['y_pos'] = self.values[nodes][1]
             
-        self.graph = nx.relabel_nodes(self.graph,self.mapping,False) #This applies the earlier defined map to the nodes of the graph.
-        self.JSON = json.dumps(nx.node_link_data(self.graph)) #This assigns the JSON string to the variable JSON
+        #self.graph = nx.relabel_nodes(self.graph,self.mapping,False) #This applies the earlier defined map to the nodes of the graph.
+        self.data = nx.node_link_data(self.graph,{'link': "edges", 'source': "from", 'target': "to", 'nodes':"nodes", 'id':"id"}) #This assigns the graph data to the variable data
+        
+        
         
     def support(self,Matrix):   # This method constructs the support matrix for a given input matrix. This is then used as the adjacency matrix of the graph.
         support = np.zeros((Matrix.shape), dtype='int32')
