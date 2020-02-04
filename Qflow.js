@@ -63,7 +63,7 @@ function Node(x,y) {
 	}
 }
 
-function Edge(x_1, y_1, x_2, y_2,c_x,c_y){
+function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	this.x_1 = x_1;
 	this.y_1 = y_1;
 	this.x_2 = x_2;
@@ -82,14 +82,22 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y){
 	   	c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
 	   	c.strokeStyle = this.colour;
 	   	c.stroke();
+	   	c.font = "30px Arial";
+	   	c.fillText(weight, 1.25 * (this.x_1 - (window.innerWidth)/2) +(window.innerWidth)/2, 1.25 * (this.y_1 - (window.innerHeight)/2) +(window.innerHeight)/2);
 		}else{
 			c.beginPath();
 	   	c.moveTo(this.x_1,this.y_1);
 	   	c.quadraticCurveTo(this.c_x,this.c_y,this.x_2,this.y_2)
 	   	c.strokeStyle = this.colour;
 	   	c.stroke();
-	   	
+	   	c.beginPath();
+	   	///c.arc(((this.x_1)/4 + (this.c_x)/2 + (this.x_2)/4),((this.y_1)/4 + (this.c_y)/2 + (this.y_2)/4),this.r,0,Math.PI * 2, false);
+	   	c.strokeStyle = this.colour;
+	   	c.stroke();
+	   	c.font = "30px Arial";
+	   	c.fillText(weight, this.c_x,this.c_y);
 		}
+		
 	}
 	
 	this.update = function(){
@@ -108,19 +116,18 @@ var edgeArray = [];
 for (var i = 0; i <JSON_OBj["edges"].length; i++){
 	var index_1 = JSON_OBj["edges"][i]["from"]
 	var index_2 = JSON_OBj["edges"][i]["to"]
+	var weight  = (JSON_OBj["edges"][i]["weight"]).toFixed(2)
 	var x_1 = (JSON_OBj["nodes"][index_1]["x_pos"]) + (window.innerWidth)/2
 	var y_1 = (JSON_OBj["nodes"][index_1]["y_pos"]) +  (window.innerHeight)/2
 	var x_2 = (JSON_OBj["nodes"][index_2]["x_pos"]) +  (window.innerWidth)/2
 	var y_2 = (JSON_OBj["nodes"][index_2]["y_pos"]) +  (window.innerHeight)/2
-	var m = (y_2-y_1)/(x_2-x_1)
 	var x_m = (x_1 + x_2) /2
 	var y_m = (y_1 + y_2) /2
-	var d = Math.sqrt((y_1 - y_2)**2+(x_1 - x_2)**2)
 	var scl = 0.2
 	var c_x = x_m + scl*(y_2-y_1)
 	var c_y = y_m - scl*(x_2-x_1)
 	
-	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,c_x,c_y))
+	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,c_x,c_y,weight))
 }
 
 function refresh() {

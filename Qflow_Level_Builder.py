@@ -60,11 +60,13 @@ class stage:
 if __name__== '__main__': #Testing code
     from qiskit import QuantumCircuit
     
-    qs = QuantumCircuit(2)
+    qs = QuantumCircuit(5)
     qs.h((0,1))
     qs.x((0,1))
+    qs.cx(0,4)
     stage = stage(qs)
-    print(stage.num_levels)
-    print(stage.levelOperator(1))
-    print(stage.levelOperator(2))
-
+    print(stage.circuit)
+    print(stage.level(1))
+    print(stage.level(2))
+    print(stage.level(3))
+    
