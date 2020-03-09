@@ -2,6 +2,7 @@ from Qflow_Level_Builder import stage
 from Graph_Constructor import Graph_Wrapper
 from qiskit import QuantumCircuit
 from tkinter import *
+import webbrowser
 
 
 class Stage_Holder:
@@ -24,8 +25,30 @@ class App:
         self.button1 = Button(frame, text="QUIT", fg="red", command=frame.quit)
         self.button1.pack(side=LEFT)
 
-        self.run_stage = Button(frame, text="Begin", command=self.run_qflow)
+        self.run_stage = Button(frame, text="Start", command=self.run_qflow)
         self.run_stage.pack(side=LEFT)
+        
+        self.instructions = Button(frame, text="How to play", command=self.how_to_play)
+        self.instructions.pack(side=LEFT)
+        
+        self.science = Button(frame, text="Explain the science", command=self.explain_science)
+        self.science.pack(side=LEFT)
+        
+        
+    def how_to_play(self):
+        frame = Frame(root)
+        frame.pack()
+        self.instructions.destroy()
+        self.rules = Message(root, text="Put some text here")
+        self.rules.pack()
+        
+        
+    def explain_science(self):
+        frame = Frame(root)
+        frame.pack()
+        self.science.destroy()
+        self.explanation = Message(root, text="Put some text here")
+        self.explanation.pack()
         
     def run_qflow(self):
         frame = Frame(root)
@@ -117,7 +140,8 @@ class App:
             l = open(r"C:\Users\ua19167\Documents\qflow\Qflow_Level{}.html".format(levels+1), "w")
             l.write(html)
             l.close()
-            
+            new = 2
+            webbrowser.open(r"C:\Users\ua19167\Documents\qflow\Qflow_Level{}.html".format(levels+1), new=new)
             
 if __name__== '__main__':
     
