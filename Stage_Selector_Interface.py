@@ -1,9 +1,17 @@
+"""
+Created on Tue Mar  3 14:20:08 2020
+
+@author: ua19167
+
+Interface for QFlow. Thanks Bryan Oakley on stackexchange.
+"""
+
 from Qflow_Level_Builder import stage
 from Graph_Constructor import Graph_Wrapper
 from qiskit import QuantumCircuit
 from tkinter import *
 import webbrowser
-
+from tkinter import font  as tkfont # python 3
 
 class Stage_Holder:
     
@@ -16,58 +24,116 @@ class Stage_Holder:
         self.stage_2.h((0,1))
         self.stage_2.cx(1,0)
         self.stage_2.z(2)
-        
-class App:
-    def __init__(self, master):        
-        frame = Frame(master)
-        frame.pack()
 
-        self.button1 = Button(frame, text="QUIT", fg="red", command=frame.quit)
-        self.button1.pack(side=LEFT)
+class App(Tk):
 
-        self.run_stage = Button(frame, text="Start", command=self.run_qflow)
-        self.run_stage.pack(side=LEFT)
+    def __init__(self):
+        Tk.__init__(self)
+
+        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+
+        # the container is where we'll stack a bunch of frames
+        # on top of each other, then the one we want visible
+        # will be raised above the others
+        container = Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+        for F in (MainMenu, Instructions, Background, RunQFlow):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
+
+            # put all of the pages in the same location;
+            # the one on the top of the stacking order
+            # will be the one that is visible.
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame("MainMenu")
+
+    def show_frame(self, page_name):
+        '''Show a frame for the given page name'''
+        frame = self.frames[page_name]
+        frame.tkraise()
+
+class MainMenu(Frame):
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        label = Label(self, text="Main Menu", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        button1 = Button(self, text="How to play",
+                            command=lambda: controller.show_frame("Instructions"))
+        button2 = Button(self, text="Explain the science",
+                            command=lambda: controller.show_frame("Background"))
+        button3 = Button(self, text="Select level",
+                            command=lambda: controller.show_frame("RunQFlow"))
+        button4 = Button(self, text="QUIT", fg="red", command=controller.quit) 
+        #the quite button works if this is run from the command line, but not spyder
         
-        self.instructions = Button(frame, text="How to play", command=self.how_to_play)
-        self.instructions.pack(side=LEFT)
+        button1.pack()
+        button2.pack()
+        button3.pack()
+        button4.pack()
+
+
+class Instructions(Frame):
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        label = Label(self, text="How to play", font=controller.title_font)
+        instructions = Message(self, text="Some text here")
+        label.pack(side="top", fill="x", pady=10)
+        instructions.pack(side="top", fill="x", pady=10)
+        button = Button(self, text="Main Menu",
+                           command=lambda: controller.show_frame("MainMenu"))
+        button4 = Button(self, text="QUIT", fg="red", command=controller.quit)
+        button.pack()
+        button4.pack()
+
+
+class Background(Frame):
+
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        label = Label(self, text="How QFlow works", font=controller.title_font)
+        science = Message(self, text="Some text here")
+        label.pack(side="top", fill="x", pady=10)
+        science.pack(side="top", fill="x", pady=10)
+        button = Button(self, text="Main Menu",
+                           command=lambda: controller.show_frame("MainMenu"))
+        button4 = Button(self, text="QUIT", fg="red", command=controller.quit)
+        button.pack()
+        button4.pack()
         
-        self.science = Button(frame, text="Explain the science", command=self.explain_science)
-        self.science.pack(side=LEFT)
-        
-        
-    def how_to_play(self):
-        frame = Frame(root)
-        frame.pack()
-        self.instructions.destroy()
-        self.rules = Message(root, text="Put some text here")
-        self.rules.pack()
-        
-        
-    def explain_science(self):
-        frame = Frame(root)
-        frame.pack()
-        self.science.destroy()
-        self.explanation = Message(root, text="Put some text here")
-        self.explanation.pack()
-        
-    def run_qflow(self):
-        frame = Frame(root)
-        frame.pack()
-        self.g = Label(root, text='Pick Stage:')
-        self.g.pack()
-        self.e = Entry(root)
+class RunQFlow(Frame):
+    
+    def __init__(self, parent, controller):
+        Frame.__init__(self, parent)
+        self.controller = controller
+        label = Label(self, text="Select stage", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+        button = Button(self, text="Main Menu",
+                           command=lambda: controller.show_frame("MainMenu"))
+        button4 = Button(self, text="QUIT", fg="red", command=controller.quit)
+        button.pack()
+        button4.pack()
+        g = Label(self, text='Pick Stage:')
+        g.pack()
+        self.e = Entry(self)
         self.e.pack()
-        self.run_stage.destroy()
-        self.button2 = Button(text="Enter", command= lambda: [self.e.destroy, self.f()])
-        self.button2.pack(side=LEFT)
+        button2 = Button(self, text="Enter", command= lambda: [self.e.destroy, self.f(parent, controller)])
+        button2.pack()
         
-    def f(self, event=None): 
-    #    print(self.e.get())
+    def f(self, parent, controller, event=None): 
         self.stagenumb = self.e.get()
-        Label(root, text='Stage '+self.stagenumb+' loaded').pack()
-        self.g.destroy()
-        self.e.destroy()
-        self.button2.destroy()
+        Label(self, text='Stage '+self.stagenumb+' loaded').pack()
         
         if self.stagenumb == '1': #if stage 1 is selected all the level graphs are created a json strings and stored in an array
             self.Stage_Selected = Stages.stage_1
@@ -80,9 +146,9 @@ class App:
                 del temp["multigraph"]
                 del temp["graph"]
                 self.graphs.append(temp)
-            self.h = Message(root, text=str(self.graphs[0]))
+            self.h = Message(self, text=str(self.graphs[0]))
             self.h.pack()
-            self.j = Label(root, text='Level files generated')
+            self.j = Label(self, text='Level files generated')
             self.j.pack()
         
         elif self.stagenumb == '2':
@@ -98,7 +164,7 @@ class App:
                 self.graphs.append(temp)
             self.j = Label(root, text='Level files generated')
             self.j.pack()
-        
+         
         else:
             self.k = Label(root, text='Invalid Selection')
             self.k.pack()
@@ -142,8 +208,8 @@ class App:
             l.close()
             new = 2
             webbrowser.open(r"C:\Users\ua19167\Documents\qflow\Qflow_Level{}.html".format(levels+1), new=new)
-            
-if __name__== '__main__':
+
+if __name__ == "__main__":
     
     seq= 1 
     w= 500
@@ -151,9 +217,6 @@ if __name__== '__main__':
     node_size=1
     
     Stages = Stage_Holder()
-        
-root = Tk()
-app = App(root)
-        
-root.mainloop()
-root.destroy()
+    
+    app = App()
+    app.mainloop()
