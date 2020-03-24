@@ -87,7 +87,7 @@ class Instructions(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         label = Label(self, text="How to play", font=controller.title_font)
-        instructions = Message(self, text="Some text here")
+        instructions = Message(self, text="In QFlow, you will be manipulating quantum circuits. Each stage corresponds to a different circuit, and each stage is broken down into several levels; you need to pass all the levels to pass the stage. In fact, each level corresponds to a different gate (the 'How QFlow works' page explains more of what's going on behind the scenes). \n In each level, you will be shown a graph, made out of nodes connected by edges. Each edge is labelled with a number (its 'flow value'). Some of the flow values will be negative and the goal is, simply, to make all of the values positive. \n How can you do this? You can select a node (not an edge!) by clicking it. You will need to select several nodes (ending with the same one you started with) to make a cycle. Then, by scrolling, you can change the probability flow value of the edges in that cycle, by sending it around the cycle. \n You can change the cycle selected by choosing a new node. Once all the values are positive, the next level will start. Good luck!")
         label.pack(side="top", fill="x", pady=10)
         instructions.pack(side="top", fill="x", pady=10)
         button = Button(self, text="Main Menu",
