@@ -12,6 +12,7 @@ from qiskit import QuantumCircuit
 from tkinter import *
 import webbrowser
 from tkinter import font  as tkfont # python 3
+#import tkHyperlinkManager
 
 class Stage_Holder:
     
@@ -103,7 +104,7 @@ class Background(Frame):
         Frame.__init__(self, parent)
         self.controller = controller
         label = Label(self, text="How QFlow works", font=controller.title_font)
-        science = Message(self, text="Some text here")
+        science = Message(self, text="QFlow is a game about quantum computers. Within a basic quantum circuit, a unitary operator (or series of unitary operators) act on the input state (which is a set of qubits), and the output is measured - these circuits (within the 'gate model' of quantum computing) are represented by the graphs that are shown in QFlow. \n In these graphs, each node represents a computational basis state, and the numbers above the edges represent the 'probability flow' between basis states, showing how the action of the computational circuit changes the probability of different states being measured as the output. **Maybe put in an example diagram here later, ie a Hadamard** \n The theory behind QFlow is based around a hidden variable theory of quantum computing proposed by Scott Aaronson in 2004, combined with a way of calculating these probability flows and a set of operations that change them conjectured by Sam Mister **and another guy**. By solving levels of QFlow, you are showing that these actions can be carried out to produce a completely positive set of probability flows - which is necessary for the proposed actions to form a valid hidden variable theory. If you find an unbeatable level, you've disproved the conjecture! \n You can find out more about quantum computing and quantum circuits in many places - this is a good place to start. https://www.ibm.com/quantum-computing/learn/what-is-quantum-computing/ \n If you want to know more about how QFlow works specifically, you can read our report about it, here. **Link to project report**")
         label.pack(side="top", fill="x", pady=10)
         science.pack(side="top", fill="x", pady=10)
         button = Button(self, text="Main Menu",
