@@ -3,6 +3,7 @@ from qiskit.quantum_info import Operator
 import numpy as np
 import random as rd
 from scipy.spatial import distance
+from Graph_Constructor import Graph_Wrapper
 
 def generator(): #This function generates random levels for Qflow based on user input 
     rd.seed() #set seed for random numbers 
@@ -66,5 +67,11 @@ def FlowCheck(Unitary, state, flow):
     
 if __name__== '__main__': #Test Code
     Unitary, state, flow = generator()
+    G_wrapper = Graph_Wrapper(Unitary,state) 
+    #graph_data = G_wrapper.data
+    #del graph_data["directed"]
+    #del graph_data["multigraph"]
+    #del graph_data["graph"]
+    #print(graph_data)
     print(flow)
 
