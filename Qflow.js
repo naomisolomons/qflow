@@ -149,7 +149,9 @@ function button(x,y,w,h,buttontext,func) {
 
 	this.draw = function(){
 		c.beginPath();
+		c.strokeStyle = "black";
 		c.rect(this.x,this.y,this.width,this.height);
+		c.fillStyle = "black";
 		c.fillText(this.text, 1.05*this.x, (this.y+ 0.75*(this.height)));
 		c.stroke();
 	}
@@ -162,7 +164,8 @@ function button(x,y,w,h,buttontext,func) {
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
-function arrayRemove(arr, value) { return arr.filter(function(ele){ return ele != value; });
+function arrayRemove(arr, value) {
+	return arr.filter(function(ele){ return ele != value; });
 }
 
 function Node(x,y,id) {
@@ -222,6 +225,7 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	   	c.strokeStyle = this.edge_colour;
 	   	c.stroke();
 	   	c.font = "30px Arial";
+			c.fillStyle = "black";
 	   	c.fillText(this.weight, 1.25 * (this.x_1 - (window.innerWidth)/2) +(window.innerWidth)/2, 1.25 * (this.y_1 - (window.innerHeight)/2) +(window.innerHeight)/2);
 		}else{
 			c.beginPath();
@@ -234,6 +238,7 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	   	c.strokeStyle = this.edge_colour;
 	   	c.stroke();
 	   	c.font = "30px Arial";
+			c.fillStyle = "black";
 	   	c.fillText(this.weight, this.c_x,this.c_y);
 		}
 
