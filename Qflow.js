@@ -4,6 +4,7 @@ var included = []
 var counter_included = []
 var cycle_edges = {}
 var counter_cycle_edges = {}
+var selectedarr = [];
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -27,6 +28,11 @@ window.addEventListener('click',
 		}
 )
 
+function clearm (){
+	mouse.x = 0
+	mouse.y = 0
+}
+////////////////////////////////////////////////////////////////////////////////
 function Cyclecheck() {
 	for (var i = 0; i < selectedarr.length; i++){
 		included.push(false)
@@ -70,7 +76,7 @@ function Cyclecheck() {
 		interaction();
 		}
 	}
-
+///////////////////////////////////////////////////////////////////////////////
 
 function interaction (){
 	for (var i = 0; i < selectedarr.length; i++){
@@ -78,20 +84,30 @@ function interaction (){
 		inter = true
 	}
 }
-document.addEventListener('wheel', function() {
+///////////////////////////////////////////////////////////////////////////////
+document.addEventListener('wheel', function(event) {
 	if (inter == true){
 		for (var key in cycle_edges){
 			id = cycle_edges[key];
-			edgeArray[id].changeweight(0.01)
+			if (event.deltaY < 0){
+				edgeArray[id].changeweight(0.01)
+			}else if (event.deltaY > 0){
+				edgeArray[id].changeweight(-0.01)
+			}
+
 		}
 		for (var key in counter_cycle_edges){
 			id = counter_cycle_edges[key];
-			edgeArray[id].changeweight(-0.01)
+			if (event.deltaY < 0){
+				edgeArray[id].changeweight(-0.01)
+			}else if (event.deltaY > 0){
+				edgeArray[id].changeweight(0.01)
+			}
 		}
 	}
 	}
 )
-
+///////////////////////////////////////////////////////////////////////////////
 function endinteraction() {
 
 	for (var i = 0; i < selectedarr.length; i++){
@@ -117,20 +133,13 @@ function endinteraction() {
 	cycle_edges = {}
 	counter_cycle_edges = {}
 }
-
+///////////////////////////////////////////////////////////////////////////////
 function reset(){
 	for (var i = 0; i < edgeArray.length; i++){
 		edgeArray[i].resetweight()
 	}
 }
-
-function clearm (){
-	mouse.x = 0
-	mouse.y = 0
-}
-var selectedarr = [];
-function arrayRemove(arr, value) { return arr.filter(function(ele){ return ele != value; });
-}
+///////////////////////////////////////////////////////////////////////////////
 function button(x,y,w,h,buttontext,func) {
 	this.x = x;
 	this.y = y;
@@ -151,6 +160,9 @@ function button(x,y,w,h,buttontext,func) {
 		}
 		this.draw();
 	}
+}
+///////////////////////////////////////////////////////////////////////////////
+function arrayRemove(arr, value) { return arr.filter(function(ele){ return ele != value; });
 }
 
 function Node(x,y,id) {
@@ -188,7 +200,7 @@ function Node(x,y,id) {
 		this.colour = colour
 	}
 }
-
+///////////////////////////////////////////////////////////////////////////////
 function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	this.x_1 = x_1;
 	this.y_1 = y_1;
@@ -237,7 +249,7 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 		this.weight = this.init_weigth
 	}
 }
-
+///////////////////////////////////////////////////////////////////////////////
 var nodeArray = [];
 for (var i = 0; i < JSON_OBj["nodes"].length; i++){
 	var id = JSON_OBj["nodes"][i]["id"]
@@ -245,7 +257,7 @@ for (var i = 0; i < JSON_OBj["nodes"].length; i++){
 	var y = JSON_OBj["nodes"][i]["y_pos"] + (window.innerHeight)/2
 	nodeArray.push(new Node(x,y,id))
 }
-
+///////////////////////////////////////////////////////////////////////////////
 var edgeArray = [];
 for (var i = 0; i <JSON_OBj["edges"].length; i++){
 	var index_1 = JSON_OBj["edges"][i]["from"]
@@ -263,11 +275,11 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 
 	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,c_x,c_y,weight))
 }
-
+///////////////////////////////////////////////////////////////////////////////
 var selectbutton = new button((window.innerWidth)/8, 0.75*(window.innerHeight), 125, 40, "CHECK", Cyclecheck)
 var endbutton = new button((window.innerWidth)/8, (0.75*(window.innerHeight)+45), 125, 40, "END", endinteraction)
 var resetbutton = new button((window.innerWidth)/8, (0.75*(window.innerHeight)+90), 125, 40, "RESET", reset)
-
+///////////////////////////////////////////////////////////////////////////////
 function refresh() {
 	requestAnimationFrame(refresh);
 	c.clearRect(0,0,innerWidth, innerHeight);
