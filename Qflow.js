@@ -15,6 +15,12 @@ var c = canvas.getContext('2d');
 var Graph_STR = document.getElementsByClassName("div1")[0].getAttribute("data-graph");
 var fixed = Graph_STR.replace(/[']/g,"\"");
 var JSON_OBj = JSON.parse(fixed);
+
+var a = (JSON_OBj["nodes"][1]["x_pos"])**2 + (JSON_OBj["nodes"][1]["y_pos"])**2
+var global_radius = canvas.height/4
+var scale = Math.sqrt(a)/global_radius
+
+
 var mouse = {
 		x: 0,
 		y: 0
@@ -23,6 +29,7 @@ var w = window.innerWidth;
 var h = window.innerHeight;
 window.addEventListener('click',
 		function(event){
+			console.log(event);
 		mouse.x = event.x
 		mouse.y = event.y
 		}
@@ -74,7 +81,10 @@ function Cyclecheck() {
 
 	if (checker(included) == true && checker(counter_included) == true){
 		interaction();
-		}
+	}else {
+		alert("Invalid Cycle")
+		endinteraction()
+	}
 	}
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -152,6 +162,8 @@ function button(x,y,w,h,buttontext,func) {
 		c.strokeStyle = "black";
 		c.rect(this.x,this.y,this.width,this.height);
 		c.fillStyle = "black";
+		c.textAlign = "start";
+		c.textBaseline = "alphabetic";
 		c.fillText(this.text, 1.05*this.x, (this.y+ 0.75*(this.height)));
 		c.stroke();
 	}
@@ -204,6 +216,38 @@ function Node(x,y,id) {
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
+function drawArrowhead(context, from, to, radius) {
+	var x_center = to.x;
+	var y_center = to.y;
+
+	var angle;
+	var x;
+	var y;
+
+	context.beginPath();
+
+	angle = Math.atan2(to.y - from.y, to.x - from.x)
+	x = radius * Math.cos(angle) + x_center;
+	y = radius * Math.sin(angle) + y_center;
+
+	context.moveTo(x, y);
+
+	angle += (1.0/3.0) * (2 * Math.PI)
+	x = radius * Math.cos(angle) + x_center;
+	y = radius * Math.sin(angle) + y_center;
+
+	context.lineTo(x, y);
+
+	angle += (1.0/3.0) * (2 * Math.PI)
+	x = radius *Math.cos(angle) + x_center;
+	y = radius *Math.sin(angle) + y_center;
+
+	context.lineTo(x, y);
+
+	context.closePath();
+
+	context.fill();
+}
 function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	this.x_1 = x_1;
 	this.y_1 = y_1;
@@ -212,10 +256,10 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	this.c_x = c_x;
 	this.c_y = c_y;
 	this.edge_colour = 'black'
-	this.k = 1.15
+	this.k = 1.3
 	this.r = 50
-	this.x_s = this.k * (this.x_1 - (window.innerWidth)/2) +(window.innerWidth)/2
-	this.y_s = this.k * (this.y_1 - (window.innerHeight)/2) +(window.innerHeight)/2
+	this.x_s = this.k * (this.x_1 - (canvas.width)/2) +(canvas.width)/2
+	this.y_s = this.k * (this.y_1 - (canvas.height)/2) +(canvas.height)/2
 	this.weight = weight
 	this.init_weigth = weight
 	this.draw = function(){
@@ -226,15 +270,31 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	   	c.stroke();
 	   	c.font = "30px Arial";
 			c.fillStyle = "black";
-	   	c.fillText(this.weight, 1.25 * (this.x_1 - (window.innerWidth)/2) +(window.innerWidth)/2, 1.25 * (this.y_1 - (window.innerHeight)/2) +(window.innerHeight)/2);
+			c.textAlign = "center";
+			c.textBaseline = "middle";
+	   	c.fillText(this.weight,this.x_s,this.y_s);//1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
 		}else{
 			c.beginPath();
 	   	c.moveTo(this.x_1,this.y_1);
 	   	c.quadraticCurveTo(this.c_x,this.c_y,this.x_2,this.y_2)
 	   	c.strokeStyle = this.edge_colour;
 	   	c.stroke();
+
+			var m = (this.y_2 - this.c_y)/(this.x_2 - this.c_x)
+			if(this.c_x < this.x_2){
+				var x_i = this.x_2 - 40/(Math.sqrt(1+m**2))
+				var y_i = this.y_2 - (40*m)/(Math.sqrt(1+m**2))
+			} else if(this.c_x > this.x_2){
+				var x_i = this.x_2 + 40/(Math.sqrt(1+m**2))
+				var y_i = this.y_2 + (40*m)/(Math.sqrt(1+m**2))
+			}
+
+
+			var from = {x:this.c_x, y:this.c_y}
+			var to = {x:x_i, y:y_i}
+			drawArrowhead(c,from,to,15);
+
 	   	c.beginPath();
-	   	///c.arc(((this.x_1)/4 + (this.c_x)/2 + (this.x_2)/4),((this.y_1)/4 + (this.c_y)/2 + (this.y_2)/4),this.r,0,Math.PI * 2, false);
 	   	c.strokeStyle = this.edge_colour;
 	   	c.stroke();
 	   	c.font = "30px Arial";
@@ -258,8 +318,8 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 var nodeArray = [];
 for (var i = 0; i < JSON_OBj["nodes"].length; i++){
 	var id = JSON_OBj["nodes"][i]["id"]
-	var x = JSON_OBj["nodes"][i]["x_pos"] + (window.innerWidth)/2
-	var y = JSON_OBj["nodes"][i]["y_pos"] + (window.innerHeight)/2
+	var x = (JSON_OBj["nodes"][i]["x_pos"] + (canvas.width)/2)
+	var y = (JSON_OBj["nodes"][i]["y_pos"] + (canvas.height)/2)
 	nodeArray.push(new Node(x,y,id))
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -268,22 +328,22 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 	var index_1 = JSON_OBj["edges"][i]["from"]
 	var index_2 = JSON_OBj["edges"][i]["to"]
 	var weight  = (JSON_OBj["edges"][i]["weight"]).toFixed(2)
-	var x_1 = (JSON_OBj["nodes"][index_1]["x_pos"]) + (window.innerWidth)/2
-	var y_1 = (JSON_OBj["nodes"][index_1]["y_pos"]) +  (window.innerHeight)/2
-	var x_2 = (JSON_OBj["nodes"][index_2]["x_pos"]) +  (window.innerWidth)/2
-	var y_2 = (JSON_OBj["nodes"][index_2]["y_pos"]) +  (window.innerHeight)/2
+	var x_1 = ((JSON_OBj["nodes"][index_1]["x_pos"]) + (canvas.width)/2)
+	var y_1 = ((JSON_OBj["nodes"][index_1]["y_pos"]) +  (canvas.height)/2)
+	var x_2 = ((JSON_OBj["nodes"][index_2]["x_pos"]) +  (canvas.width)/2)
+	var y_2 = ((JSON_OBj["nodes"][index_2]["y_pos"]) +  (canvas.height)/2)
 	var x_m = (x_1 + x_2) /2
 	var y_m = (y_1 + y_2) /2
-	var scl = 0.2
+	var scl = 0.15
 	var c_x = x_m + scl*(y_2-y_1)
 	var c_y = y_m - scl*(x_2-x_1)
 
 	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,c_x,c_y,weight))
 }
 ///////////////////////////////////////////////////////////////////////////////
-var selectbutton = new button((window.innerWidth)/8, 0.75*(window.innerHeight), 125, 40, "CHECK", Cyclecheck)
-var endbutton = new button((window.innerWidth)/8, (0.75*(window.innerHeight)+45), 125, 40, "END", endinteraction)
-var resetbutton = new button((window.innerWidth)/8, (0.75*(window.innerHeight)+90), 125, 40, "RESET", reset)
+var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", Cyclecheck)
+var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "END", endinteraction)
+var resetbutton = new button((canvas.width)/8, (0.75*(canvas.height)+90), 125, 40, "RESET", reset)
 ///////////////////////////////////////////////////////////////////////////////
 function refresh() {
 	requestAnimationFrame(refresh);
@@ -299,6 +359,7 @@ function refresh() {
 	selectbutton.update()
 	endbutton.update()
 	resetbutton.update()
+
 }
 
 refresh();
