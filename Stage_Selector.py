@@ -9,8 +9,7 @@ class Stage_Holder:
     def __init__(self):
         self.stage_1 = QuantumCircuit(2)
         self.stage_1.h(0)
-        self.stage_1.h(1)
-     
+        
         
         self.stage_2 = QuantumCircuit(3)
         self.stage_2.h((0,1))
@@ -69,11 +68,13 @@ if __name__== '__main__':
                 <title>Qflow - A Quantum Game</title>
                 <style type="text/css">
                     canvas {
-                        border: 0px solid black;
+                        border: 1px solid black;
+                     
                     }
                     
                     body {
                         margin: 0;
+                         overflow:hidden;
                     }
                     
                     div1 {
