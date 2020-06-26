@@ -25,11 +25,9 @@ var mouse = {
 		x: 0,
 		y: 0
 	}
-var w = window.innerWidth;
-var h = window.innerHeight;
+
 window.addEventListener('click',
 		function(event){
-			console.log(event);
 		mouse.x = event.x
 		mouse.y = event.y
 		}
@@ -40,25 +38,64 @@ function clearm (){
 	mouse.y = 0
 }
 ////////////////////////////////////////////////////////////////////////////////
-function Cyclecheck() {
-	for (var i = 0; i < selectedarr.length; i++){
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
+
+function Scramble(){
+for (var i =0; i<500; i++){
+	var scram_arr = []
+	var k = getRndInteger(2,JSON_OBj["nodes"].length)
+	for (var j = 0; j < (k); j++){
+		var m = getRndInteger(0,(JSON_OBj["nodes"].length)-1)
+		if (scram_arr.includes(m) == false){
+			scram_arr.push(JSON_OBj["nodes"][m]["id"])
+		}
+
+  }
+	check = Cyclecheck(scram_arr)
+	if (check == true){
+		var n = (Math.random()).toFixed(2)
+		console.log(cycle_edges);
+		console.log(n);
+		for (var key in cycle_edges){
+			id = cycle_edges[key];
+			edgeArray[id].changeweight(n)
+		}
+		for (var key in counter_cycle_edges){
+			id = counter_cycle_edges[key];
+		  edgeArray[id].changeweight(-n)
+		}
+		}
+	}
+
+		included = []
+		counter_included = []
+		cycle_edges = {}
+		counter_cycle_edges = {}
+		scram_arr = []
+	}
+
+////////////////////////////////////////////////////////////////////////////////
+function Cyclecheck(arr) {
+	for (var i = 0; i < arr.length; i++){
 		included.push(false)
 		counter_included.push(false)
 	}
-	for (var i =0; i< selectedarr.length; i++){
-		if (i == (selectedarr.length-1)){
-			var edgecan = [selectedarr[i],selectedarr[0]];
-			if (selectedarr.length == 2){
-				var counter_edgecan = [selectedarr[i],selectedarr[i]];
+	for (var i =0; i< arr.length; i++){
+		if (i == (arr.length-1)){
+			var edgecan = [arr[i],arr[0]];
+			if (arr.length == 2){
+				var counter_edgecan = [arr[i],arr[i]];
 			}else {
-				var counter_edgecan = [selectedarr[0],selectedarr[i]];
+				var counter_edgecan = [arr[0],arr[i]];
 			}
 		}else {
-			var edgecan = [selectedarr[i],selectedarr[i+1]];
-			if (selectedarr.length == 2){
-				var counter_edgecan = [selectedarr[i],selectedarr[i]];
+			var edgecan = [arr[i],arr[i+1]];
+			if (arr.length == 2){
+				var counter_edgecan = [arr[i],arr[i]];
 			}else {
-				var counter_edgecan = [selectedarr[i+1],selectedarr[i]];
+				var counter_edgecan = [arr[i+1],arr[i]];
 			}
 
 		}
@@ -80,18 +117,22 @@ function Cyclecheck() {
 	let checker = arr => arr.every(Boolean);
 
 	if (checker(included) == true && checker(counter_included) == true){
-		interaction();
+		return true
 	}else {
-		alert("Invalid Cycle")
-		endinteraction()
+		return false
 	}
 	}
 ///////////////////////////////////////////////////////////////////////////////
 
 function interaction (){
-	for (var i = 0; i < selectedarr.length; i++){
-		nodeArray[selectedarr[i]].changecol("green");
-		inter = true
+	check = Cyclecheck(selectedarr)
+	if (check == true){
+		for (var i = 0; i < selectedarr.length; i++){
+			nodeArray[selectedarr[i]].changecol("green");
+			inter = true}
+	}else if (check == false){
+		alert("Invalid Cycle")
+		endinteraction()
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,6 +201,7 @@ function button(x,y,w,h,buttontext,func) {
 	this.draw = function(){
 		c.beginPath();
 		c.strokeStyle = "black";
+		c.lineWidth = 2;
 		c.rect(this.x,this.y,this.width,this.height);
 		c.fillStyle = "black";
 		c.textAlign = "start";
@@ -184,16 +226,22 @@ function Node(x,y,id) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
-	this.radius = 30;
+	this.radius = 30; //radius of the nodes
 	this.colour = 'black'
-
+	var bin = this.id
 	this.draw = function() {
 		c.beginPath();
 	  c.arc(this.x,this.y,this.radius,0,Math.PI * 2, false);
 	  c.strokeStyle = this.colour;
+		c.lineWidth = 10;
 	  c.stroke();
-	  c.fillStyle = this.colour;
+	  c.fillStyle = "white";
 	  c.fill();
+		c.font = "30px Arial";
+		c.fillStyle = "black";
+		c.textAlign = "center";
+		c.textBaseline = "middle";
+		c.fillText(bin,this.x,this.y);
 	}
 
 	this.update = function(){
@@ -256,8 +304,8 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	this.c_x = c_x;
 	this.c_y = c_y;
 	this.edge_colour = 'black'
-	this.k = 1.3
-	this.r = 50
+	this.k = 1.3 //controls the positioning of the self loops
+	this.r = 50 //radius of the self loops
 	this.x_s = this.k * (this.x_1 - (canvas.width)/2) +(canvas.width)/2
 	this.y_s = this.k * (this.y_1 - (canvas.height)/2) +(canvas.height)/2
 	this.weight = weight
@@ -267,17 +315,19 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 			c.beginPath();
 	   	c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
 	   	c.strokeStyle = this.edge_colour;
+			c.lineWidth = 2;
 	   	c.stroke();
 	   	c.font = "30px Arial";
 			c.fillStyle = "black";
 			c.textAlign = "center";
 			c.textBaseline = "middle";
-	   	c.fillText(this.weight,this.x_s,this.y_s);//1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
+	   	c.fillText(this.weight,this.x_s,this.y_s); //1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
 		}else{
 			c.beginPath();
 	   	c.moveTo(this.x_1,this.y_1);
 	   	c.quadraticCurveTo(this.c_x,this.c_y,this.x_2,this.y_2)
 	   	c.strokeStyle = this.edge_colour;
+			c.lineWidth = 2;
 	   	c.stroke();
 
 			var m = (this.y_2 - this.c_y)/(this.x_2 - this.c_x)
@@ -286,19 +336,26 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 				var y_i = this.y_2 - (40*m)/(Math.sqrt(1+m**2))
 			} else if(this.c_x > this.x_2){
 				var x_i = this.x_2 + 40/(Math.sqrt(1+m**2))
-				var y_i = this.y_2 + (40*m)/(Math.sqrt(1+m**2))
+				var y_i = this.y_2 + (40*m)/(Math.sqrt(1+m**2)) //40 indicated the positioning of the arrowheads
 			}
 
 
 			var from = {x:this.c_x, y:this.c_y}
 			var to = {x:x_i, y:y_i}
-			drawArrowhead(c,from,to,15);
+			drawArrowhead(c,from,to,15); //15 represents the "radius" of the arrowheads
 
 	   	c.beginPath();
 	   	c.strokeStyle = this.edge_colour;
 	   	c.stroke();
 	   	c.font = "30px Arial";
 			c.fillStyle = "black";
+			c.textBaseline = "middle";
+			if (this.c_x > this.x_2 && this.c_y < this.y_2 || this.c_x < this.x_2 && this.c_y < this.y_2){
+				c.textAlign = "left";
+			} else if (this.c_x < this.x_2 && this.c_y > this.y_2 || this.c_x > this.x_2 && this.c_y > this.y_2){
+				c.textAlign = "right";
+			}
+
 	   	c.fillText(this.weight, this.c_x,this.c_y);
 		}
 
@@ -334,16 +391,17 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 	var y_2 = ((JSON_OBj["nodes"][index_2]["y_pos"]) +  (canvas.height)/2)
 	var x_m = (x_1 + x_2) /2
 	var y_m = (y_1 + y_2) /2
-	var scl = 0.15
+	var scl = 0.2 //controls the curviness of the edges
 	var c_x = x_m + scl*(y_2-y_1)
 	var c_y = y_m - scl*(x_2-x_1)
 
 	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,c_x,c_y,weight))
 }
 ///////////////////////////////////////////////////////////////////////////////
-var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", Cyclecheck)
+var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", interaction)
 var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "END", endinteraction)
 var resetbutton = new button((canvas.width)/8, (0.75*(canvas.height)+90), 125, 40, "RESET", reset)
+var scramblebutton = new button(7*(canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "MIX", Scramble)
 ///////////////////////////////////////////////////////////////////////////////
 function refresh() {
 	requestAnimationFrame(refresh);
@@ -359,6 +417,7 @@ function refresh() {
 	selectbutton.update()
 	endbutton.update()
 	resetbutton.update()
+	scramblebutton.update()
 
 }
 
