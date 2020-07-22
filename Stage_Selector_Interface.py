@@ -3,7 +3,9 @@ Created on Tue Mar  3 14:20:08 2020
 
 @author: ua19167
 
-Interface for QFlow. Thanks Bryan Oakley on stackexchange.
+Interface for QFlow. Thanks Bryan Oakley on stackexchange. 
+
+Largely dependent on original Stage_Selector file created by Sam Mister. Interface created by Naomi Solomons.
 """
 
 from Qflow_Level_Builder import stage
@@ -15,11 +17,11 @@ from tkinter import font  as tkfont # python 3
 #import tkHyperlinkManager
 
 class Stage_Holder:
+#This module is currently designed to hold the circuit data needed to constuct each stage.
     
     def __init__(self):
         self.stage_1 = QuantumCircuit(2)
-        self.stage_1.h((0,1))
-        self.stage_1.x((0,1))
+        self.stage_1.h(0)
         
         self.stage_2 = QuantumCircuit(3)
         self.stage_2.h((0,1))
@@ -27,33 +29,29 @@ class Stage_Holder:
         self.stage_2.z(2)
 
 class App(Tk):
-
+# Creates the window for the user interface. Creates a container
+# and then frames are stacked on top of each other. Visible frame is
+# raised above the others.
     def __init__(self):
         Tk.__init__(self)
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
 
-        # the container is where we'll stack a bunch of frames
-        # on top of each other, then the one we want visible
-        # will be raised above the others
         container = Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
+        #These are the main pages for the game - note that RunQFlow is the actual gameplay
         for F in (MainMenu, Instructions, Background, RunQFlow):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
-
-            # put all of the pages in the same location;
-            # the one on the top of the stacking order
-            # will be the one that is visible.
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame("MainMenu")
-
+        # We start with the Main Menu frame.
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
         frame = self.frames[page_name]
@@ -66,7 +64,7 @@ class MainMenu(Frame):
         self.controller = controller
         label = Label(self, text="Main Menu", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-
+        # The text is the bit the user sees, not the name of the frame
         button1 = Button(self, text="How to play",
                             command=lambda: controller.show_frame("Instructions"))
         button2 = Button(self, text="Explain the science",
@@ -74,7 +72,7 @@ class MainMenu(Frame):
         button3 = Button(self, text="Select level",
                             command=lambda: controller.show_frame("RunQFlow"))
         button4 = Button(self, text="QUIT", fg="red", command=controller.quit) 
-        #the quite button works if this is run from the command line, but not spyder
+        #bug: the quit button works if this is run from the command line, but not from spyder
         
         button1.pack()
         button2.pack()
@@ -89,6 +87,7 @@ class Instructions(Frame):
         self.controller = controller
         label = Label(self, text="How to play", font=controller.title_font)
         instructions = Message(self, text="In QFlow, you will be manipulating quantum circuits. Each stage corresponds to a different circuit, and each stage is broken down into several levels; you need to pass all the levels to pass the stage. In fact, each level corresponds to a different gate (the 'How QFlow works' page explains more of what's going on behind the scenes). \n In each level, you will be shown a graph, made out of nodes connected by edges. Each edge is labelled with a number (its 'flow value'). Some of the flow values will be negative and the goal is, simply, to make all of the values positive. \n How can you do this? You can select a node (not an edge!) by clicking it. You will need to select several nodes (ending with the same one you started with) to make a cycle. Then, by scrolling, you can change the probability flow value of the edges in that cycle, by sending it around the cycle. \n You can change the cycle selected by choosing a new node. Once all the values are positive, the next level will start. Good luck!")
+        # Put the instructions for gameplay in here.
         label.pack(side="top", fill="x", pady=10)
         instructions.pack(side="top", fill="x", pady=10)
         button = Button(self, text="Main Menu",
@@ -105,6 +104,7 @@ class Background(Frame):
         self.controller = controller
         label = Label(self, text="How QFlow works", font=controller.title_font)
         science = Message(self, text="QFlow is a game about quantum computers. Within a basic quantum circuit, a unitary operator (or series of unitary operators) act on the input state (which is a set of qubits), and the output is measured - these circuits (within the 'gate model' of quantum computing) are represented by the graphs that are shown in QFlow. \n In these graphs, each node represents a computational basis state, and the numbers above the edges represent the 'probability flow' between basis states, showing how the action of the computational circuit changes the probability of different states being measured as the output. **Maybe put in an example diagram here later, ie a Hadamard** \n The theory behind QFlow is based around a hidden variable theory of quantum computing proposed by Scott Aaronson in 2004, combined with a way of calculating these probability flows and a set of operations that change them conjectured by Sam Mister **and another guy**. By solving levels of QFlow, you are showing that these actions can be carried out to produce a completely positive set of probability flows - which is necessary for the proposed actions to form a valid hidden variable theory. If you find an unbeatable level, you've disproved the conjecture! \n You can find out more about quantum computing and quantum circuits in many places - this is a good place to start. https://www.ibm.com/quantum-computing/learn/what-is-quantum-computing/ \n If you want to know more about how QFlow works specifically, you can read our report about it, here. **Link to project report**")
+        # Put information about the background in here. 
         label.pack(side="top", fill="x", pady=10)
         science.pack(side="top", fill="x", pady=10)
         button = Button(self, text="Main Menu",
@@ -133,10 +133,10 @@ class RunQFlow(Frame):
         button2.pack()
         
     def f(self, parent, controller, event=None): 
-        self.stagenumb = self.e.get()
+        self.stagenumb = self.e.get() #user inputs stage, this is stored as stagenumb
         Label(self, text='Stage '+self.stagenumb+' loaded').pack()
         
-        if self.stagenumb == '1': #if stage 1 is selected all the level graphs are created a json strings and stored in an array
+        if self.stagenumb == '1': #if stage 1 is selected all the level graphs are created as json strings and stored in an array
             self.Stage_Selected = Stages.stage_1
             self.stagevar = stage(Stages.stage_1)
             self.graphs = []
@@ -163,16 +163,16 @@ class RunQFlow(Frame):
                 del temp["multigraph"]
                 del temp["graph"]
                 self.graphs.append(temp)
-            self.j = Label(root, text='Level files generated')
+            self.j = Label(self, text='Level files generated')
             self.j.pack()
          
         else:
-            self.k = Label(root, text='Invalid Selection')
+            self.k = Label(self, text='Invalid Selection')
             self.k.pack()
             
         #############################################################################################      
-    # This sections creates a HTML webpage for each levels of the stage. 
-    #This can the code can be modified to open the first level automatically
+    # This section creates a HTML webpage for each levels of the stage. 
+    #This way, the code can be modified to open the first level automatically
         for levels in range(0,self.stagevar.num_levels):    
             html1 = """<!DOCTYPE html>
                 <html lang = "en">
@@ -186,6 +186,7 @@ class RunQFlow(Frame):
                         
                         body {
                             margin: 0;
+                            overflow:hidden;
                             }
                         
                         div1 {
@@ -194,7 +195,7 @@ class RunQFlow(Frame):
                         
                     </style>
                 </head>
-                <body>"""
+                <body id = "body">"""
             html2=        """<div class = "div1" data-graph = "{}"></div>""".format(self.graphs[levels])
                         
             html3=        """<canvas></canvas>
@@ -204,11 +205,11 @@ class RunQFlow(Frame):
         
             html = html1+html2+html3
         #This writes the generated HTML version of the graph to a html file which can be viewed in browser
-            l = open(r"C:\Users\ua19167\Documents\qflow\Qflow_Level{}.html".format(levels+1), "w")
+            l = open(r"C:\Users\ua19167\OneDrive - University of Bristol\Documents\Game\QFlow\qflow\Qflow_Level{}.html".format(levels+1), "w")
             l.write(html)
             l.close()
             new = 2
-            webbrowser.open(r"C:\Users\ua19167\Documents\qflow\Qflow_Level{}.html".format(levels+1), new=new)
+            webbrowser.open(r"C:\Users\ua19167\OneDrive - University of Bristol\Documents\Game\QFlow\qflow\Qflow_Level{}.html".format(levels+1), new=new)
 
 if __name__ == "__main__":
     
