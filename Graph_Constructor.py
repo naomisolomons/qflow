@@ -17,7 +17,7 @@ class Graph_Wrapper:
         
         self.graph = nx.DiGraph(self.support) #This defines as Directed Graph object this is structred as a dict of dicts
         #self.mapping = {node:"{0:b}".format(node) for node in self.graph.nodes()} #This defines a maps the node lables to there representation in the computational basis
-        self.values = nx.circular_layout(self.graph,300) #This defines an array of x,y coridinates that will give the graph a circualr structure when drawn
+        self.values = nx.circular_layout(self.graph,220) #This defines an array of x,y coridinates that will give the graph a circualr structure when drawn
         
         for source, target in self.graph.edges: # assigns the weight of each edge the corresponding value of the flow matrix
             self.graph[source][target]['weight'] = self.prob_flows[source,target]       

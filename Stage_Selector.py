@@ -8,8 +8,8 @@ class Stage_Holder:
     
     def __init__(self):
         self.stage_1 = QuantumCircuit(2)
-        self.stage_1.h((0,1))
-        self.stage_1.x((0,1))
+        self.stage_1.h(0)
+        
         
         self.stage_2 = QuantumCircuit(3)
         self.stage_2.h((0,1))
@@ -69,10 +69,12 @@ if __name__== '__main__':
                 <style type="text/css">
                     canvas {
                         border: 1px solid black;
+                     
                     }
                     
                     body {
                         margin: 0;
+                         overflow:hidden;
                     }
                     
                     div1 {
@@ -81,7 +83,7 @@ if __name__== '__main__':
                 
                 </style>
             </head>
-            <body>"""
+            <body id = "body">"""
         html2=        """<div class = "div1" data-graph = "{}"></div>""".format(graphs[levels])
                 
         html3=        """<canvas></canvas>
@@ -91,6 +93,6 @@ if __name__== '__main__':
         
         html = html1+html2+html3
         #This writes the generated HTML version of the graph to a html file which can be viewed in browser
-        f = open(r"C:\Users\sm15883\.spyder-py3\git_Qflow\Qflow_Level{}.html".format(levels+1), "w")
+        f = open(r"C:\Users\User\Documents\Cohort_Project\qflow\Qflow_Level{}.html".format(levels+1), "w")
         f.write(html)
         f.close()
