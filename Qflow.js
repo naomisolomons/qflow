@@ -175,7 +175,7 @@ function endinteraction() {
 	}
 		let checker = arr => arr.every(Boolean);
 		if (checker(winarry) == true){
-			alert("You Win")
+			alert("Congrats on Completing the Level. Refresh the page to play Again or return to the home page for another Level.")
 		}
 	inter = false;
 	selectedarr = [];
@@ -226,9 +226,9 @@ function Node(x,y,id) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
-	this.radius = 30; //radius of the nodes
+	this.radius = 20; //radius of the nodes
 	this.colour = 'black'
-	var bin = this.id
+	var bin = this.id.toString(2)
 	this.draw = function() {
 		c.beginPath();
 	  c.arc(this.x,this.y,this.radius,0,Math.PI * 2, false);
@@ -304,8 +304,8 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	this.c_x = c_x;
 	this.c_y = c_y;
 	this.edge_colour = 'black'
-	this.k = 1.3 //controls the positioning of the self loops
-	this.r = 50 //radius of the self loops
+	this.k = 1.25 //controls the positioning of the self loops
+	this.r = 35 //radius of the self loops
 	this.x_s = this.k * (this.x_1 - (canvas.width)/2) +(canvas.width)/2
 	this.y_s = this.k * (this.y_1 - (canvas.height)/2) +(canvas.height)/2
 	this.weight = weight
@@ -321,7 +321,10 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 			c.fillStyle = "black";
 			c.textAlign = "center";
 			c.textBaseline = "middle";
-	   	c.fillText(this.weight,this.x_s,this.y_s); //1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
+			if (this.weight != 0){
+				c.fillText(this.weight,this.x_s,this.y_s); //1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
+			}
+
 		}else{
 			c.beginPath();
 	   	c.moveTo(this.x_1,this.y_1);
@@ -350,13 +353,16 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	   	c.font = "30px Arial";
 			c.fillStyle = "black";
 			c.textBaseline = "middle";
-			if (this.c_x > this.x_2 && this.c_y < this.y_2 || this.c_x < this.x_2 && this.c_y < this.y_2){
-				c.textAlign = "left";
-			} else if (this.c_x < this.x_2 && this.c_y > this.y_2 || this.c_x > this.x_2 && this.c_y > this.y_2){
-				c.textAlign = "right";
+			if (this.weight != 0){
+				if (this.c_x > this.x_2 && this.c_y < this.y_2 || this.c_x < this.x_2 && this.c_y < this.y_2){
+					c.textAlign = "left";
+				} else if (this.c_x < this.x_2 && this.c_y > this.y_2 || this.c_x > this.x_2 && this.c_y > this.y_2){
+					c.textAlign = "right";
+				}
+
+		   	c.fillText(this.weight, this.c_x,this.c_y);
 			}
 
-	   	c.fillText(this.weight, this.c_x,this.c_y);
 		}
 
 	}
