@@ -16,6 +16,8 @@ Levels can also be generated using the file 'Rand_Gen.py', which creates circuit
 
 To get a copy running on your local machine for development and testing purposes, it is necessary to first install qiskit. Instructions for doing so can be found here: https://qiskit.org/documentation/install.html. Note that it is best to do so using Anaconda.
 
+You will also need to change the path of some files in 'Stage_Selector_Interface.py'.
+
 The game can be played either by running 'Stage_Selector_Interface.py' or the html file associated to the chosen level.
 
 ## Deployment 
