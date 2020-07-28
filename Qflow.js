@@ -175,7 +175,7 @@ function endinteraction() {
 	}
 		let checker = arr => arr.every(Boolean);
 		if (checker(winarry) == true){
-			alert("Congrats on Completing the Level. Refresh the page to play Again or return to the home page for another Level.")
+			alert("Congrats on Completing the Level. Refresh the page to play again or return to the home page for another Level.")
 		}
 	inter = false;
 	selectedarr = [];
