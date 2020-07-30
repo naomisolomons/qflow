@@ -41,6 +41,9 @@ function clearm (){
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
 }
+function Mix(){
+	mix();
+}
 
 function Scramble(){
 for (var i =0; i<500; i++){
@@ -228,7 +231,7 @@ function Node(x,y,id) {
 	this.y = y;
 	this.radius = 20; //radius of the nodes
 	this.colour = 'black'
-	var bin = this.id.toString(2)
+	var bin = this.id
 	this.draw = function() {
 		c.beginPath();
 	  c.arc(this.x,this.y,this.radius,0,Math.PI * 2, false);
@@ -407,7 +410,7 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", interaction)
 var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "END", endinteraction)
 var resetbutton = new button((canvas.width)/8, (0.75*(canvas.height)+90), 125, 40, "RESET", reset)
-var scramblebutton = new button(7*(canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "MIX", Scramble)
+var scramblebutton = new button(7*(canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "MIX", Mix)
 ///////////////////////////////////////////////////////////////////////////////
 function refresh() {
 	requestAnimationFrame(refresh);
