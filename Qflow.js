@@ -31,7 +31,6 @@ var mouse = {
 
 window.addEventListener('click',
 		function(event){
-			console.log(event);
 		mouse.x = event.x
 		mouse.y = event.y
 		}
@@ -43,10 +42,10 @@ function clearm (){
 }
 ////////////////////////////////////////////////////////////////////////////////
 //Drag interaction
-let x_new = 0;
-let y_new = 0;
-let isDragging = false;
-let isDraggedId = null;
+var x_new = 0;
+var y_new = 0;
+var isDragging = false;
+var isDraggedId = null;
 
 window.addEventListener('mousedown',
 		function(event){
@@ -58,10 +57,24 @@ window.addEventListener('mousedown',
 
 window.addEventListener('mousemove',
 		function(event){
-			if(isDragging === true){
+			if(isDragging === true && isDraggedId !== null){
 				x_new = event.x;
 				y_new = event.y;
 				nodeArray[isDraggedId].updatePos(x_new, y_new)
+				for (var i = 0; i < edgeArray.length; i++){
+					if (edgeArray[i].from === isDraggedId && edgeArray[i].to === isDraggedId){
+						edgeArray[i].updateEdgeStart(x_new,y_new)
+						edgeArray[i].updateEdgeEnd(x_new,y_new)
+					}
+
+					if (edgeArray[i].from === isDraggedId){
+						edgeArray[i].updateEdgeStart(x_new,y_new)
+					}else if (edgeArray[i].to === isDraggedId){
+						edgeArray[i].updateEdgeEnd(x_new,y_new)
+					}
+
+				}
+
 			}
 		}
 );
@@ -178,7 +191,8 @@ function interaction (){
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
-document.addEventListener('wheel', function(event) {
+window.addEventListener('wheel', function(event) {
+
 	if (inter == true){
 		for (var key in cycle_edges){
 			id = cycle_edges[key];
@@ -347,33 +361,78 @@ function drawArrowhead(context, from, to, radius) {
 
 	context.fill();
 }
-function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
+function Edge(x_1, y_1, x_2, y_2,weight,from,to){
+	this.from = from;
+	this.to= to;
+
 	this.x_1 = x_1;
 	this.y_1 = y_1;
 	this.x_2 = x_2;
 	this.y_2 = y_2;
-	this.c_x = c_x;
-	this.c_y = c_y;
-	this.edge_colour = 'black'
-	this.k = 1.25 //controls the positioning of the self loops
-	this.r = 35 //radius of the self loops
-	this.x_s = this.k * (this.x_1 - (canvas.width)/2) +(canvas.width)/2
-	this.y_s = this.k * (this.y_1 - (canvas.height)/2) +(canvas.height)/2
+
 	this.weight = weight
 	this.init_weigth = weight
+
 	this.draw = function(){
+		this.x_m = (this.x_1 + this.x_2) /2
+		this.y_m = (this.y_1 + this.y_2) /2
+		this.scl = 0.1 //controls the curviness of the edges
+		this.c_x = this.x_m + this.scl*(this.y_2-this.y_1)
+		this.c_y = this.y_m - this.scl*(this.x_2-this.x_1)
+
+		this.edge_colour = 'black'
+		this.k = 1.5 //controls the positioning of the self loops text
+		this.r = 35 //radius of the self loops
+		this.x_text = this.k * (this.x_1 - (canvas.width)/2) +(canvas.width)/2
+		this.y_text = this.k * (this.y_1 - (canvas.height)/2) +(canvas.height)/2
+
+
 		if (this.x_1 == this.x_2 && this.y_1 == this.y_2){
+			this.m = (this.y_1 - (canvas.height/2))/(this.x_1 - (canvas.width/2))
+			this.d = 30
+
 			c.beginPath();
-	   	c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
-	   	c.strokeStyle = this.edge_colour;
-			c.lineWidth = 2;
-	   	c.stroke();
+			if ((this.x_1 - (canvas.width/2)) > 0 && (this.y_1 - (canvas.height/2)) > 0){
+
+				this.x_s = this.x_1 + (this.d)/(Math.sqrt(1+(this.m)**2))
+				this.y_s = this.y_1 + (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
+				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
+		   	c.strokeStyle = this.edge_colour;
+				c.lineWidth = 2;
+		   	c.stroke();
+			}else if ((this.x_1 - (canvas.width/2)) > 0 && (this.y_1 - (canvas.height/2)) < 0){
+
+				this.x_s = this.x_1 - (this.d)/(Math.sqrt(1+(this.m)**2))
+				this.y_s = this.y_1 + (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
+				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
+		   	c.strokeStyle = this.edge_colour;
+				c.lineWidth = 2;
+		   	c.stroke();
+			}else if ((this.x_1 - (canvas.width/2)) < 0 && (this.y_1 - (canvas.height/2)) > 0){
+
+				this.x_s = this.x_1 + (this.d)/(Math.sqrt(1+(this.m)**2))
+				this.y_s = this.y_1 - (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
+				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
+		   	c.strokeStyle = this.edge_colour;
+				c.lineWidth = 2;
+		   	c.stroke();
+			}else if ((this.x_1 - (canvas.width/2)) < 0 && (this.y_1 - (canvas.height/2)) < 0){
+				this.x_s = this.x_1 - (this.d)/(Math.sqrt(1+(this.m)**2))
+				this.y_s = this.y_1 - (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
+				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
+		   	c.strokeStyle = this.edge_colour;
+				c.lineWidth = 2;
+		   	c.stroke();
+			}
+
+
+
 	   	c.font = "30px Arial";
 			c.fillStyle = "black";
 			c.textAlign = "center";
 			c.textBaseline = "middle";
 			if (this.weight != 0){
-				c.fillText(this.weight,this.x_s,this.y_s); //1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
+				c.fillText(this.weight,this.x_text,this.y_text); //1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
 			}
 
 		}else{
@@ -427,7 +486,17 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 	this.resetweight = function(){
 		this.weight = this.init_weigth
 	}
+
+	this.updateEdgeStart = function(new_x_1,new_y_1){
+		this.x_1 = new_x_1;
+		this.y_1 = new_y_1;
+	}
+	this.updateEdgeEnd = function(new_x_2,new_y_2){
+		this.x_2 = new_x_2;
+		this.y_2 = new_y_2;
+	}
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 var nodeArray = [];
 for (var i = 0; i < JSON_OBj["nodes"].length; i++){
@@ -446,13 +515,9 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 	var y_1 = ((JSON_OBj["nodes"][index_1]["y_pos"]) +  (canvas.height)/2)
 	var x_2 = ((JSON_OBj["nodes"][index_2]["x_pos"]) +  (canvas.width)/2)
 	var y_2 = ((JSON_OBj["nodes"][index_2]["y_pos"]) +  (canvas.height)/2)
-	var x_m = (x_1 + x_2) /2
-	var y_m = (y_1 + y_2) /2
-	var scl = 0.1 //controls the curviness of the edges
-	var c_x = x_m + scl*(y_2-y_1)
-	var c_y = y_m - scl*(x_2-x_1)
 
-	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,c_x,c_y,weight))
+
+	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,weight,index_1,index_2))
 }
 ///////////////////////////////////////////////////////////////////////////////
 var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", interaction)
