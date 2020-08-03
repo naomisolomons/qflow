@@ -392,7 +392,7 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){
 			this.d = 30
 
 			c.beginPath();
-			if ((this.x_1 - (canvas.width/2)) > 0 && (this.y_1 - (canvas.height/2)) > 0){
+			if ((this.x_1 - (canvas.width/2)) > 0 ){
 
 				this.x_s = this.x_1 + (this.d)/(Math.sqrt(1+(this.m)**2))
 				this.y_s = this.y_1 + (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
@@ -400,23 +400,7 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){
 		   	c.strokeStyle = this.edge_colour;
 				c.lineWidth = 2;
 		   	c.stroke();
-			}else if ((this.x_1 - (canvas.width/2)) > 0 && (this.y_1 - (canvas.height/2)) < 0){
-
-				this.x_s = this.x_1 - (this.d)/(Math.sqrt(1+(this.m)**2))
-				this.y_s = this.y_1 + (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
-				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
-		   	c.strokeStyle = this.edge_colour;
-				c.lineWidth = 2;
-		   	c.stroke();
-			}else if ((this.x_1 - (canvas.width/2)) < 0 && (this.y_1 - (canvas.height/2)) > 0){
-
-				this.x_s = this.x_1 + (this.d)/(Math.sqrt(1+(this.m)**2))
-				this.y_s = this.y_1 - (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
-				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
-		   	c.strokeStyle = this.edge_colour;
-				c.lineWidth = 2;
-		   	c.stroke();
-			}else if ((this.x_1 - (canvas.width/2)) < 0 && (this.y_1 - (canvas.height/2)) < 0){
+			}else if ((this.x_1 - (canvas.width/2)) < 0 ){
 				this.x_s = this.x_1 - (this.d)/(Math.sqrt(1+(this.m)**2))
 				this.y_s = this.y_1 - (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
 				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
