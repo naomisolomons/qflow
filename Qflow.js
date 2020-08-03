@@ -1,3 +1,5 @@
+////////////////////////////////////////////////////////////////////////////////
+//Document Setup
 var canvas = document.querySelector('canvas');
 var inter = false
 var included = []
@@ -6,10 +8,11 @@ var cycle_edges = {}
 var counter_cycle_edges = {}
 var selectedarr = [];
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+
 
 var c = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 ///c.translate((window.innerWidth)/2,(window.innerHeight)/2)
 
 var Graph_STR = document.getElementsByClassName("div1")[0].getAttribute("data-graph");
@@ -19,8 +22,8 @@ var JSON_OBj = JSON.parse(fixed);
 var a = (JSON_OBj["nodes"][1]["x_pos"])**2 + (JSON_OBj["nodes"][1]["y_pos"])**2
 var global_radius = canvas.height/4
 var scale = Math.sqrt(a)/global_radius
-
-
+////////////////////////////////////////////////////////////////////////////////
+//Click Events
 var mouse = {
 		x: 0,
 		y: 0
@@ -28,6 +31,7 @@ var mouse = {
 
 window.addEventListener('click',
 		function(event){
+			console.log(event);
 		mouse.x = event.x
 		mouse.y = event.y
 		}
@@ -37,6 +41,41 @@ function clearm (){
 	mouse.x = 0
 	mouse.y = 0
 }
+////////////////////////////////////////////////////////////////////////////////
+//Drag interaction
+let x_new = 0;
+let y_new = 0;
+let isDragging = false;
+let isDraggedId = null;
+
+window.addEventListener('mousedown',
+		function(event){
+			x_new = event.x;
+		  y_new = event.y;
+			isDragging = true;
+		}
+);
+
+window.addEventListener('mousemove',
+		function(event){
+			if(isDragging === true){
+				x_new = event.x;
+				y_new = event.y;
+				nodeArray[isDraggedId].updatePos(x_new, y_new)
+			}
+		}
+);
+
+window.addEventListener('mouseup',
+		function(event){
+			x_new = 0;
+			y_new = 0;
+			isDragging = false;
+			isDraggedId = null;
+		}
+);
+
+
 ////////////////////////////////////////////////////////////////////////////////
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1) ) + min;
@@ -260,10 +299,19 @@ function Node(x,y,id) {
 		selectedarr = arrayRemove(selectedarr,this.id)
 	}
 
+	var dist2 = Math.sqrt((this.x - x_new)**2+(this.y - y_new)**2)
+
+	if (dist2 < this.radius){
+		isDraggedId = this.id
+	}
 		this.draw()
 	}
 	this.changecol = function(colour){
 		this.colour = colour
+	}
+	this.updatePos = function(new_x,new_y){
+		this.x = new_x;
+		this.y = new_y;
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -338,17 +386,17 @@ function Edge(x_1, y_1, x_2, y_2,c_x,c_y,weight){
 
 			var m = (this.y_2 - this.c_y)/(this.x_2 - this.c_x)
 			if(this.c_x < this.x_2){
-				var x_i = this.x_2 - 40/(Math.sqrt(1+m**2))
-				var y_i = this.y_2 - (40*m)/(Math.sqrt(1+m**2))
+				var x_i = this.x_2 - 32/(Math.sqrt(1+m**2))
+				var y_i = this.y_2 - (32*m)/(Math.sqrt(1+m**2))
 			} else if(this.c_x > this.x_2){
-				var x_i = this.x_2 + 40/(Math.sqrt(1+m**2))
-				var y_i = this.y_2 + (40*m)/(Math.sqrt(1+m**2)) //40 indicated the positioning of the arrowheads
+				var x_i = this.x_2 + 32/(Math.sqrt(1+m**2))
+				var y_i = this.y_2 + (32*m)/(Math.sqrt(1+m**2)) //40 indicated the positioning of the arrowheads
 			}
 
 
 			var from = {x:this.c_x, y:this.c_y}
 			var to = {x:x_i, y:y_i}
-			drawArrowhead(c,from,to,15); //15 represents the "radius" of the arrowheads
+			drawArrowhead(c,from,to,10); //15 represents the "radius" of the arrowheads
 
 	   	c.beginPath();
 	   	c.strokeStyle = this.edge_colour;
@@ -400,7 +448,7 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 	var y_2 = ((JSON_OBj["nodes"][index_2]["y_pos"]) +  (canvas.height)/2)
 	var x_m = (x_1 + x_2) /2
 	var y_m = (y_1 + y_2) /2
-	var scl = 0.2 //controls the curviness of the edges
+	var scl = 0.1 //controls the curviness of the edges
 	var c_x = x_m + scl*(y_2-y_1)
 	var c_y = y_m - scl*(x_2-x_1)
 
@@ -408,7 +456,7 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 }
 ///////////////////////////////////////////////////////////////////////////////
 var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", interaction)
-var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "END", endinteraction)
+var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "SUBMIT", endinteraction)
 var resetbutton = new button((canvas.width)/8, (0.75*(canvas.height)+90), 125, 40, "RESET", reset)
 var scramblebutton = new button(7*(canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "MIX", Mix)
 ///////////////////////////////////////////////////////////////////////////////
