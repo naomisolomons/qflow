@@ -172,8 +172,8 @@ function Cyclecheck(arr) {																											// This means that it check
 	}
 	}
 ///////////////////////////////////////////////////////////////////////////////
-
-function interaction (){
+																																								//If the selected cycle is valid turn then this function
+function interaction (){																												//turns the nodes green and activate interactive mode.
 	check = Cyclecheck(selectedarr)
 	if (check == true){
 		for (var i = 0; i < selectedarr.length; i++){
@@ -185,9 +185,9 @@ function interaction (){
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
-window.addEventListener('wheel', function(event) {
+window.addEventListener('wheel', function(event) {															//deals with mouse wheel events
 
-	if (inter == true){
+	if (inter == true){																														//if interactivity is enabled change the weights of the edges dependent on the direction of the scroll
 		for (var key in cycle_edges){
 			id = cycle_edges[key];
 			if (event.deltaY < 0){
@@ -209,13 +209,13 @@ window.addEventListener('wheel', function(event) {
 	}
 )
 ///////////////////////////////////////////////////////////////////////////////
-function endinteraction() {
+function endinteraction() {																											//when called this function checks the win condition and ends the interactivity.
 
 	for (var i = 0; i < selectedarr.length; i++){
 		nodeArray[selectedarr[i]].changecol("black");
 	}
 	var winarry = [];
-	for (var i = 0; i < edgeArray.length; i++){
+	for (var i = 0; i < edgeArray.length; i++){																		//check that all weights are positive.
 		w = edgeArray[i].weight
 		if (w >= 0){
 			winarry.push(true);
@@ -227,6 +227,21 @@ function endinteraction() {
 		if (checker(winarry) == true){
 			alert("Congrats on Completing the Level. Refresh the page to play again or return to the home page for another Level.")
 		}
+	inter = false;																																//reset all appropriate variables
+	selectedarr = [];
+	included = []
+	counter_included = []
+	cycle_edges = {}
+	counter_cycle_edges = {}
+}
+///////////////////////////////////////////////////////////////////////////////
+function reset(){																																//This function resents everything is you want to start from scratch.
+	for (var i = 0; i < edgeArray.length; i++){
+		edgeArray[i].resetweight()
+	}
+	for (var i = 0; i < selectedarr.length; i++){
+		nodeArray[selectedarr[i]].changecol("black");
+	}
 	inter = false;
 	selectedarr = [];
 	included = []
@@ -235,20 +250,14 @@ function endinteraction() {
 	counter_cycle_edges = {}
 }
 ///////////////////////////////////////////////////////////////////////////////
-function reset(){
-	for (var i = 0; i < edgeArray.length; i++){
-		edgeArray[i].resetweight()
-	}
-}
-///////////////////////////////////////////////////////////////////////////////
-function button(x,y,w,h,buttontext,func) {
+function button(x,y,w,h,buttontext,func) {																			//Generic object that can be used as a button
 	this.x = x;
 	this.y = y;
 	this.width = w;
 	this.height = h;
   this.text = buttontext;
 
-	this.draw = function(){
+	this.draw = function(){																												//This function determines how the button is drawn.
 		c.beginPath();
 		c.strokeStyle = "black";
 		c.lineWidth = 2;
@@ -259,7 +268,7 @@ function button(x,y,w,h,buttontext,func) {
 		c.fillText(this.text, 1.05*this.x, (this.y+ 0.75*(this.height)));
 		c.stroke();
 	}
-	this.update = function(){
+	this.update = function(){																											//If the mouse clicks within the boundarys of the button its associatied function is called
 		if (mouse.x < (this.x + this.width) && mouse.x > this.x && mouse.y < (this.y + this.height) && mouse.y > this.y){
 			func();
 			clearm();
@@ -268,18 +277,19 @@ function button(x,y,w,h,buttontext,func) {
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
-function arrayRemove(arr, value) {
+function arrayRemove(arr, value) {																							//useful function that removes a given element from a given array
 	return arr.filter(function(ele){ return ele != value; });
 }
 
-function Node(x,y,id) {
-	this.id = id;
+function Node(x,y,id) {																													//Node object class.
+	this.id = id;																																	//Node has a bunch of defining parameters
 	this.x = x;
 	this.y = y;
 	this.radius = 20; //radius of the nodes
 	this.colour = 'black'
 	var bin = this.id
-	this.draw = function() {
+
+	this.draw = function() {																											//This function determines how the nodes are drawn
 		c.beginPath();
 	  c.arc(this.x,this.y,this.radius,0,Math.PI * 2, false);
 	  c.strokeStyle = this.colour;
@@ -294,36 +304,36 @@ function Node(x,y,id) {
 		c.fillText(bin,this.x,this.y);
 	}
 
-	this.update = function(){
+	this.update = function(){																											//This function handels the updating of the nodes.
 	var dist = Math.sqrt((this.x - mouse.x)**2+(this.y - mouse.y)**2)
 
-	if (dist < this.radius && this.colour == 'black' && mouse.shift === true){
-		this.colour = 'red'
+	if (dist < this.radius && this.colour == 'black' && mouse.shift === true){ 		//If the mouse clicks on a node while the shift key is held the node is selected.
+		this.colour = 'red'																													//Change the colour to red
 		clearm()
-		selectedarr.push(this.id)
-	} else if (dist < this.radius && this.colour == 'red' && mouse.shift === true){
+		selectedarr.push(this.id)																										//add the node the the selected array
+	} else if (dist < this.radius && this.colour == 'red' && mouse.shift === true){ // If the mouse clicks on the node + shift key then deselect the node
 		this.colour = 'black'
 		clearm()
-		selectedarr = arrayRemove(selectedarr,this.id)
+		selectedarr = arrayRemove(selectedarr,this.id)															//Remove the id from the selected array
 	}
 
 	var dist2 = Math.sqrt((this.x - x_new)**2+(this.y - y_new)**2)
 
-	if (dist2 < this.radius){
+	if (dist2 < this.radius){																											//If the mouse is being held done on the node set the isDraggedId to the node ID
 		isDraggedId = this.id
 	}
 		this.draw()
 	}
-	this.changecol = function(colour){
+	this.changecol = function(colour){																						// method that updates node colour
 		this.colour = colour
 	}
-	this.updatePos = function(new_x,new_y){
+	this.updatePos = function(new_x,new_y){ 																			// method that updates node position
 		this.x = new_x;
 		this.y = new_y;
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
-function drawArrowhead(context, from, to, radius) {
+function drawArrowhead(context, from, to, radius) {															// calling this function draws an arrowhead
 	var x_center = to.x;
 	var y_center = to.y;
 
@@ -355,8 +365,8 @@ function drawArrowhead(context, from, to, radius) {
 
 	context.fill();
 }
-function Edge(x_1, y_1, x_2, y_2,weight,from,to){
-	this.from = from;
+function Edge(x_1, y_1, x_2, y_2,weight,from,to){																// Edge object Class
+	this.from = from;																															//Defines a bunch of edge properties
 	this.to= to;
 
 	this.x_1 = x_1;
@@ -367,26 +377,27 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){
 	this.weight = weight
 	this.init_weigth = weight
 
-	this.draw = function(){
-		this.x_m = (this.x_1 + this.x_2) /2
+	this.draw = function(){																												//This Function Determines how to draw the edges
+		this.x_m = (this.x_1 + this.x_2) /2																					//Thes scaled coordinates and control points are used to draw the quadratic curves
 		this.y_m = (this.y_1 + this.y_2) /2
-		this.scl = 0.1 //controls the curviness of the edges
+		this.scl = 0.1 																															//controls the curviness of the edges
 		this.c_x = this.x_m + this.scl*(this.y_2-this.y_1)
 		this.c_y = this.y_m - this.scl*(this.x_2-this.x_1)
 
 		this.edge_colour = 'black'
-		this.k = 1.5 //controls the positioning of the self loops text
-		this.r = 35 //radius of the self loops
-		this.x_text = this.k * (this.x_1 - (canvas.width)/2) +(canvas.width)/2
-		this.y_text = this.k * (this.y_1 - (canvas.height)/2) +(canvas.height)/2
+		this.k = 100 																																//controls the positioning of the self loops text
+		this.r = 35 																																//radius of the self loops
+		c.font = "30px Arial";
+		c.fillStyle = "black";
+		c.textAlign = "center";
+		c.textBaseline = "middle";
 
-
-		if (this.x_1 == this.x_2 && this.y_1 == this.y_2){
+		if (this.x_1 == this.x_2 && this.y_1 == this.y_2){													//Handels the self loops
 			this.m = (this.y_1 - (canvas.height/2))/(this.x_1 - (canvas.width/2))
 			this.d = 30
 
 			c.beginPath();
-			if ((this.x_1 - (canvas.width/2)) > 0 ){
+			if ((this.x_1 - (canvas.width/2)) > 0 ){																	//This section makes sure the self loops are always aligned correctly
 
 				this.x_s = this.x_1 + (this.d)/(Math.sqrt(1+(this.m)**2))
 				this.y_s = this.y_1 + (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
@@ -394,26 +405,33 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){
 		   	c.strokeStyle = this.edge_colour;
 				c.lineWidth = 2;
 		   	c.stroke();
+
+				this.x_text = this.x_1 + (this.k)/(Math.sqrt(1+(this.m)**2))
+				this.y_text = this.y_1 + (this.k*this.m)/(Math.sqrt(1+(this.m)**2))
+				if (this.weight != 0){
+					c.fillText(this.weight,this.x_text,this.y_text);
+				}
+
 			}else if ((this.x_1 - (canvas.width/2)) < 0 ){
+
 				this.x_s = this.x_1 - (this.d)/(Math.sqrt(1+(this.m)**2))
 				this.y_s = this.y_1 - (this.d*this.m)/(Math.sqrt(1+(this.m)**2))
 				c.arc(this.x_s,this.y_s,this.r,0,Math.PI * 2, false);
 		   	c.strokeStyle = this.edge_colour;
 				c.lineWidth = 2;
 		   	c.stroke();
+				this.x_text = this.x_1 - (this.k)/(Math.sqrt(1+(this.m)**2))
+				this.y_text = this.y_1 - (this.k*this.m)/(Math.sqrt(1+(this.m)**2))
+				if (this.weight != 0){
+					c.fillText(this.weight,this.x_text,this.y_text);
+				}
 			}
 
 
 
-	   	c.font = "30px Arial";
-			c.fillStyle = "black";
-			c.textAlign = "center";
-			c.textBaseline = "middle";
-			if (this.weight != 0){
-				c.fillText(this.weight,this.x_text,this.y_text); //1.25 * (this.x_1 - (canvas.width)/2) +(canvas.width)/2, 1.25 * (this.y_1 - (canvas.height)/2) +(canvas.height)/2);
-			}
 
-		}else{
+
+		}else{																																			//If not a self loop do this
 			c.beginPath();
 	   	c.moveTo(this.x_1,this.y_1);
 	   	c.quadraticCurveTo(this.c_x,this.c_y,this.x_2,this.y_2)
@@ -421,26 +439,26 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){
 			c.lineWidth = 2;
 	   	c.stroke();
 
-			var m = (this.y_2 - this.c_y)/(this.x_2 - this.c_x)
+			var m = (this.y_2 - this.c_y)/(this.x_2 - this.c_x)												//Determines the positioning of the arrowheads
 			if(this.c_x < this.x_2){
 				var x_i = this.x_2 - 32/(Math.sqrt(1+m**2))
 				var y_i = this.y_2 - (32*m)/(Math.sqrt(1+m**2))
 			} else if(this.c_x > this.x_2){
 				var x_i = this.x_2 + 32/(Math.sqrt(1+m**2))
-				var y_i = this.y_2 + (32*m)/(Math.sqrt(1+m**2)) //40 indicated the positioning of the arrowheads
+				var y_i = this.y_2 + (32*m)/(Math.sqrt(1+m**2)) 												//40 indicates the positioning of the arrowheads
 			}
 
 
 			var from = {x:this.c_x, y:this.c_y}
 			var to = {x:x_i, y:y_i}
-			drawArrowhead(c,from,to,10); //15 represents the "radius" of the arrowheads
+			drawArrowhead(c,from,to,10); 																							//15 represents the "radius" of the arrowheads
 
 	   	c.beginPath();
 	   	c.strokeStyle = this.edge_colour;
 	   	c.stroke();
 	   	c.font = "30px Arial";
 			c.fillStyle = "black";
-			c.textBaseline = "middle";
+			c.textBaseline = "middle";																								//Changes how the text is aligned depending on its position on the page
 			if (this.weight != 0){
 				if (this.c_x > this.x_2 && this.c_y < this.y_2 || this.c_x < this.x_2 && this.c_y < this.y_2){
 					c.textAlign = "left";
@@ -458,25 +476,25 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){
 	this.update = function(){
 		this.draw()
 	}
-	this.changeweight = function(we){
+	this.changeweight = function(we){																							//This method changes the value of the weight
 		this.weight = (parseFloat(this.weight) + parseFloat(we)).toFixed(2)
 	}
-	this.resetweight = function(){
+	this.resetweight = function(){																								//Returns the weight to the initial state
 		this.weight = this.init_weigth
 	}
 
-	this.updateEdgeStart = function(new_x_1,new_y_1){
+	this.updateEdgeStart = function(new_x_1,new_y_1){															//This method updates the start point of the edge
 		this.x_1 = new_x_1;
 		this.y_1 = new_y_1;
 	}
-	this.updateEdgeEnd = function(new_x_2,new_y_2){
+	this.updateEdgeEnd = function(new_x_2,new_y_2){																//This method updates the end point of the edge
 		this.x_2 = new_x_2;
 		this.y_2 = new_y_2;
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-var nodeArray = [];
+var nodeArray = [];																															//Initiallised an array of node objects
 for (var i = 0; i < JSON_OBj["nodes"].length; i++){
 	var id = JSON_OBj["nodes"][i]["id"]
 	var x = (JSON_OBj["nodes"][i]["x_pos"] + (canvas.width)/2)
@@ -484,7 +502,7 @@ for (var i = 0; i < JSON_OBj["nodes"].length; i++){
 	nodeArray.push(new Node(x,y,id))
 }
 ///////////////////////////////////////////////////////////////////////////////
-var edgeArray = [];
+var edgeArray = [];																															//Initiallised an array of edge objects
 for (var i = 0; i <JSON_OBj["edges"].length; i++){
 	var index_1 = JSON_OBj["edges"][i]["from"]
 	var index_2 = JSON_OBj["edges"][i]["to"]
@@ -497,24 +515,24 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 
 	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,weight,index_1,index_2))
 }
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////// Initialises instances of buttons
 var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", interaction)
 var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "SUBMIT", endinteraction)
 var resetbutton = new button((canvas.width)/8, (0.75*(canvas.height)+90), 125, 40, "RESET", reset)
 var scramblebutton = new button(7*(canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "MIX", Mix)
 ///////////////////////////////////////////////////////////////////////////////
-function refresh() {
+function refresh() {																														//This refresh function controls the animation loop.
 	requestAnimationFrame(refresh);
-	c.clearRect(0,0,innerWidth, innerHeight);
+	c.clearRect(0,0,innerWidth, innerHeight);																			//Clear the page each frame
 
 	for (var i = 0; i < edgeArray.length; i++){
-		edgeArray[i].update()
+		edgeArray[i].update()																												//redraw the edges each frame
 	}
 
 	for (var i = 0; i < nodeArray.length; i++){
-		nodeArray[i].update()
+		nodeArray[i].update()																												//redraw the nodes each frame
 	}
-	selectbutton.update()
+	selectbutton.update()																													//redraw the buttons each frame 
 	endbutton.update()
 	resetbutton.update()
 	scramblebutton.update()

@@ -7,11 +7,11 @@ from qiskit import QuantumCircuit
 class Stage_Holder:
     
     def __init__(self):
-        self.stage_1 = QuantumCircuit(2)
-        self.stage_1.z(0)
-        self.stage_1.z(1)
-        #self.stage_1.h(2)
-        
+        self.stage_1 = QuantumCircuit(3)
+        self.stage_1.h(0)
+        self.stage_1.h(1)
+        self.stage_1.h(2)
+        #self.stage_1.h(3)
        
      
         
