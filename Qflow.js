@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 //Document Setup
-var canvas = document.querySelector('canvas');
-var inter = false
-var included = []
+var canvas = document.querySelector('canvas'); 																	//selects the canvas tag from the HTML file
+var inter = false 																															// this variable toggles the user interaction loop.
+var included = [] 																															// All these empty data structures are used in the user input process
 var counter_included = []
 var cycle_edges = {}
 var counter_cycle_edges = {}
@@ -11,43 +11,44 @@ var selectedarr = [];
 
 
 var c = canvas.getContext('2d');
-canvas.width = window.innerWidth;
+canvas.width = window.innerWidth; //sets the height and width of the canvas
 canvas.height = window.innerHeight;
-///c.translate((window.innerWidth)/2,(window.innerHeight)/2)
 
-var Graph_STR = document.getElementsByClassName("div1")[0].getAttribute("data-graph");
+
+var Graph_STR = document.getElementsByClassName("div1")[0].getAttribute("data-graph"); // extract and process the graph data which is stored in a div by the initial python script.
 var fixed = Graph_STR.replace(/[']/g,"\"");
 var JSON_OBj = JSON.parse(fixed);
 
-var a = (JSON_OBj["nodes"][1]["x_pos"])**2 + (JSON_OBj["nodes"][1]["y_pos"])**2
-var global_radius = canvas.height/4
-var scale = Math.sqrt(a)/global_radius
 ////////////////////////////////////////////////////////////////////////////////
 //Click Events
-var mouse = {
+var mouse = { 																																	//dictionary style variable called mouse that has an x and y component
 		x: 0,
-		y: 0
+		y: 0,
+		shift: false
 	}
 
-window.addEventListener('click',
-		function(event){
+window.addEventListener('click', 																								//event listener waits for clicks and then stores the
+		function(event){																														//x,y position of the cursor in the variable mouse.
+			console.log(event);
 		mouse.x = event.x
 		mouse.y = event.y
+		mouse.shift = event.shiftKey
 		}
 )
 
-function clearm (){
+function clearm (){ 																														//when called this function clears the variable mouse.
 	mouse.x = 0
 	mouse.y = 0
+	mouse.shift = false
 }
 ////////////////////////////////////////////////////////////////////////////////
 //Drag interaction
-var x_new = 0;
+var x_new = 0; 																																	// control variables for dragging
 var y_new = 0;
 var isDragging = false;
 var isDraggedId = null;
 
-window.addEventListener('mousedown',
+window.addEventListener('mousedown', 																						//listens for a mouse down event. when detected activated the handeling of dragging events.
 		function(event){
 			x_new = event.x;
 		  y_new = event.y;
@@ -57,29 +58,22 @@ window.addEventListener('mousedown',
 
 window.addEventListener('mousemove',
 		function(event){
-			if(isDragging === true && isDraggedId !== null){
+			if(isDragging === true && isDraggedId !== null){ 													// the code is exicuted the the mouse is held down on a node
 				x_new = event.x;
 				y_new = event.y;
-				nodeArray[isDraggedId].updatePos(x_new, y_new)
-				for (var i = 0; i < edgeArray.length; i++){
-					if (edgeArray[i].from === isDraggedId && edgeArray[i].to === isDraggedId){
+				nodeArray[isDraggedId].updatePos(x_new, y_new) 													//this updates the position of the node to the current cursor position
+				for (var i = 0; i < edgeArray.length; i++){															// sums over all the edges and decides weather to update them or not.
+					if (edgeArray[i].from === isDraggedId){ 															// if the edge begins at the dragged node update its stating position
 						edgeArray[i].updateEdgeStart(x_new,y_new)
-						edgeArray[i].updateEdgeEnd(x_new,y_new)
+					}if (edgeArray[i].to === isDraggedId){ 																// if the edge ends and the dragged node update the end position.
+						edgeArray[i].updateEdgeEnd(x_new,y_new) 														// double if statement is used as this catchs the case of self loops
 					}
-
-					if (edgeArray[i].from === isDraggedId){
-						edgeArray[i].updateEdgeStart(x_new,y_new)
-					}else if (edgeArray[i].to === isDraggedId){
-						edgeArray[i].updateEdgeEnd(x_new,y_new)
-					}
-
 				}
-
 			}
 		}
 );
 
-window.addEventListener('mouseup',
+window.addEventListener('mouseup',																							//When a mouse up event occurs the relevant variables are reset.
 		function(event){
 			x_new = 0;
 			y_new = 0;
@@ -90,16 +84,16 @@ window.addEventListener('mouseup',
 
 
 ////////////////////////////////////////////////////////////////////////////////
-function getRndInteger(min, max) {
+function getRndInteger(min, max) {																							//Random integer generator used in the scramble function
   return Math.floor(Math.random() * (max - min + 1) ) + min;
 }
-function Mix(){
+function Mix(){																																	// calls the mix function for each levels data file.
 	mix();
 }
 
-function Scramble(){
-for (var i =0; i<500; i++){
-	var scram_arr = []
+function Scramble(){																														// This function performs random mixing operations on the graph.
+for (var i =0; i<500; i++){																											//This function could be with some reworking as I feel like it in inefficent and buggy
+	var scram_arr = []																														// It is not currently being implimented as we are manually scrambling the levels
 	var k = getRndInteger(2,JSON_OBj["nodes"].length)
 	for (var j = 0; j < (k); j++){
 		var m = getRndInteger(0,(JSON_OBj["nodes"].length)-1)
@@ -131,16 +125,16 @@ for (var i =0; i<500; i++){
 		scram_arr = []
 	}
 
-////////////////////////////////////////////////////////////////////////////////
-function Cyclecheck(arr) {
-	for (var i = 0; i < arr.length; i++){
+//////////////////////////////////////////////////////////////////////////////// This function checks that a selected cycle is valid.
+function Cyclecheck(arr) {																											// This means that it checks that every node in the proposed cycle has an edge between them.
+	for (var i = 0; i < arr.length; i++){																					// It also checks that the reverse cycle exists in the graph
 		included.push(false)
 		counter_included.push(false)
 	}
 	for (var i =0; i< arr.length; i++){
 		if (i == (arr.length-1)){
 			var edgecan = [arr[i],arr[0]];
-			if (arr.length == 2){
+			if (arr.length == 2){																											//special case for 2 node cycyles
 				var counter_edgecan = [arr[i],arr[i]];
 			}else {
 				var counter_edgecan = [arr[0],arr[i]];
@@ -169,9 +163,9 @@ function Cyclecheck(arr) {
 			}
 		}
 	}
-	let checker = arr => arr.every(Boolean);
+	let checker = arr => arr.every(Boolean); 																			//returns true if every element in an array is true.
 
-	if (checker(included) == true && checker(counter_included) == true){
+	if (checker(included) == true && checker(counter_included) == true){					// if cycle and counter cycle are in the graph then return true.
 		return true
 	}else {
 		return false
@@ -303,11 +297,11 @@ function Node(x,y,id) {
 	this.update = function(){
 	var dist = Math.sqrt((this.x - mouse.x)**2+(this.y - mouse.y)**2)
 
-	if (dist < this.radius && this.colour == 'black'){
+	if (dist < this.radius && this.colour == 'black' && mouse.shift === true){
 		this.colour = 'red'
 		clearm()
 		selectedarr.push(this.id)
-	} else if (dist < this.radius && this.colour == 'red'){
+	} else if (dist < this.radius && this.colour == 'red' && mouse.shift === true){
 		this.colour = 'black'
 		clearm()
 		selectedarr = arrayRemove(selectedarr,this.id)
