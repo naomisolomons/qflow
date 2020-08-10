@@ -56,19 +56,62 @@ class Graph_Wrapper:
     
 
 if __name__== '__main__': #Test Code
-    from Qflow_Level_Builder import stage
     from qiskit import QuantumCircuit
+    from qiskit.quantum_info import Operator
+    import numpy as np
     
+    n = 3 #number of qubits
     
-    qs = QuantumCircuit(2)
-    qs.h((0,1))
-    qs.cx(1,0)
-    qs.x(0)
-    qs.y(0)
+    qs = QuantumCircuit(n)
+    
+    qs.h(1)
+    qs.cnot(1,0)
+    qs.cnot(1,2)
+    
+    initial_state = np.zeros(2**n)
+    initial_state[0] = 1
+    U = Operator(qs)
 
-    Stage_One = stage(qs)
-    G_wrapper = Graph_Wrapper(Stage_One.levelOperator(1),Stage_One.levelState(1))
-    a = G_wrapper.output_JSON()
+    G_wrapper = Graph_Wrapper(U,initial_state)
+    graph_data = G_wrapper.data
+    del graph_data["directed"]
+    del graph_data["multigraph"]
+    del graph_data["graph"]
+    #print(graph_data)
     
-    
+    html1 = """<!DOCTYPE html>
+            <html lang = "en">
+            <head>
+                <meta charset="utf-8">
+                <title>Qflow - A Quantum Game</title>
+                <style type="text/css">
+                    canvas {
+                        border: 1px solid black;
+                     
+                    }
+                    
+                    body {
+                        margin: 0;
+                         overflow:hidden;
+                    }
+                    
+                    div1 {
+                        display: none
+                    }
+                
+                </style>
+            </head>
+            <body id = "body">"""
+    html2=        """<div class = "div1" data-graph = "{}"></div>""".format(graph_data)
+                
+    html3=        """<canvas></canvas>
+                <script src="Qflow.js"></script>
+            </body>
+            </html>"""
+        
+    html = html1+html2+html3
+    #This writes the generated HTML version of the graph to a html file which can be viewed in browser
+    f = open(r"C:\Users\User\Documents\Cohort_Project\qflow\Qflow_Level_Test.html", "w")
+    f.write(html)
+    f.close()
 

@@ -11,6 +11,7 @@ var selectedarr = [];
 
 
 var c = canvas.getContext('2d');
+var img = document.getElementById("background");
 canvas.width = window.innerWidth; //sets the height and width of the canvas
 canvas.height = window.innerHeight;
 
@@ -265,7 +266,7 @@ function button(x,y,w,h,buttontext,func) {																			//Generic object th
 		c.fillStyle = "black";
 		c.textAlign = "start";
 		c.textBaseline = "alphabetic";
-		c.fillText(this.text, 1.05*this.x, (this.y+ 0.75*(this.height)));
+		c.fillText(this.text, 1.01*this.x, (this.y+ 0.75*(this.height)));
 		c.stroke();
 	}
 	this.update = function(){																											//If the mouse clicks within the boundarys of the button its associatied function is called
@@ -492,7 +493,6 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){																// Edge object 
 		this.y_2 = new_y_2;
 	}
 }
-
 ///////////////////////////////////////////////////////////////////////////////
 var nodeArray = [];																															//Initiallised an array of node objects
 for (var i = 0; i < JSON_OBj["nodes"].length; i++){
@@ -519,12 +519,12 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", interaction)
 var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "SUBMIT", endinteraction)
 var resetbutton = new button((canvas.width)/8, (0.75*(canvas.height)+90), 125, 40, "RESET", reset)
-var scramblebutton = new button(7*(canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "MIX", Mix)
+var scramblebutton = new button(6*(canvas.width)/8, (0.75*(canvas.height)+45), 180, 40, "SQUAMBLE", Mix)
 ///////////////////////////////////////////////////////////////////////////////
 function refresh() {																														//This refresh function controls the animation loop.
 	requestAnimationFrame(refresh);
 	c.clearRect(0,0,innerWidth, innerHeight);																			//Clear the page each frame
-
+	///c.drawImage(img, 0, 0,canvas.width,canvas.height);
 	for (var i = 0; i < edgeArray.length; i++){
 		edgeArray[i].update()																												//redraw the edges each frame
 	}
@@ -532,7 +532,7 @@ function refresh() {																														//This refresh function contro
 	for (var i = 0; i < nodeArray.length; i++){
 		nodeArray[i].update()																												//redraw the nodes each frame
 	}
-	selectbutton.update()																													//redraw the buttons each frame 
+	selectbutton.update()																													//redraw the buttons each frame
 	endbutton.update()
 	resetbutton.update()
 	scramblebutton.update()
