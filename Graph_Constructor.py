@@ -58,15 +58,16 @@ class Graph_Wrapper:
 if __name__== '__main__': #Test Code
     from qiskit import QuantumCircuit
     from qiskit.quantum_info import Operator
-    import numpy as np
+    #import numpy as np
     
     n = 3 #number of qubits
     
     qs = QuantumCircuit(n)
     
     qs.h(1)
-    qs.cnot(1,0)
-    qs.cnot(1,2)
+    qs.x(0)
+    qs.h(2)
+    
     
     initial_state = np.zeros(2**n)
     initial_state[0] = 1
@@ -106,6 +107,7 @@ if __name__== '__main__': #Test Code
                 
     html3=        """<canvas></canvas>
                 <script src="Qflow.js"></script>
+                <script src="Qflow_Level_Test_data.js"></script>
             </body>
             </html>"""
         

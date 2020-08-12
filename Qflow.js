@@ -8,10 +8,12 @@ var cycle_edges = {}
 var counter_cycle_edges = {}
 var selectedarr = [];
 
+//Loading of the background image
+var img = new Image();
+img.src = "Background_v3.jpg";
 
 
 var c = canvas.getContext('2d');
-var img = document.getElementById("background");
 canvas.width = window.innerWidth; //sets the height and width of the canvas
 canvas.height = window.innerHeight;
 
@@ -30,7 +32,7 @@ var mouse = { 																																	//dictionary style variable calle
 
 window.addEventListener('click', 																								//event listener waits for clicks and then stores the
 		function(event){																														//x,y position of the cursor in the variable mouse.
-			console.log(event);
+
 		mouse.x = event.x
 		mouse.y = event.y
 		mouse.shift = event.shiftKey
@@ -226,7 +228,14 @@ function endinteraction() {																											//when called this functio
 	}
 		let checker = arr => arr.every(Boolean);
 		if (checker(winarry) == true){
-			alert("Congrats on Completing the Level. Refresh the page to play again or return to the home page for another Level.")
+			BackgroundMusic.stop()
+			MusicPlaying = false
+			VictoryMusic.play()
+			setTimeout(function(){
+				alert("Congrats on Completing the Level. Refresh the page to play again or return to the home page for another Level.")
+			}, 200);
+
+
 		}
 	inter = false;																																//reset all appropriate variables
 	selectedarr = [];
@@ -249,6 +258,25 @@ function reset(){																																//This function resents everyth
 	counter_included = []
 	cycle_edges = {}
 	counter_cycle_edges = {}
+}
+///////////////////////////////////////////////////////////////////////////////
+function sound(src, loopValue,volume) {
+  this.sound = document.createElement("audio");
+  this.sound.src = src;
+	this.sound.volume = volume
+  this.sound.setAttribute("preload", "auto");
+  this.sound.setAttribute("controls", "none");
+	if(loopValue === true){
+		this.sound.setAttribute("loop","true")
+	}
+  this.sound.style.display = "none";
+  document.body.appendChild(this.sound);
+  this.play = function(){
+    this.sound.play();
+  }
+  this.stop = function(){
+    this.sound.pause();
+  }
 }
 ///////////////////////////////////////////////////////////////////////////////
 function button(x,y,w,h,buttontext,func) {																			//Generic object that can be used as a button
@@ -310,10 +338,12 @@ function Node(x,y,id) {																													//Node object class.
 
 	if (dist < this.radius && this.colour == 'black' && mouse.shift === true){ 		//If the mouse clicks on a node while the shift key is held the node is selected.
 		this.colour = 'red'																													//Change the colour to red
+		SelectMusic.play()
 		clearm()
 		selectedarr.push(this.id)																										//add the node the the selected array
 	} else if (dist < this.radius && this.colour == 'red' && mouse.shift === true){ // If the mouse clicks on the node + shift key then deselect the node
 		this.colour = 'black'
+		DeselectMusic.play()
 		clearm()
 		selectedarr = arrayRemove(selectedarr,this.id)															//Remove the id from the selected array
 	}
@@ -388,7 +418,7 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){																// Edge object 
 		this.edge_colour = 'black'
 		this.k = 100 																																//controls the positioning of the self loops text
 		this.r = 35 																																//radius of the self loops
-		c.font = "30px Arial";
+		c.font = "25px Arial";
 		c.fillStyle = "black";
 		c.textAlign = "center";
 		c.textBaseline = "middle";
@@ -457,7 +487,7 @@ function Edge(x_1, y_1, x_2, y_2,weight,from,to){																// Edge object 
 	   	c.beginPath();
 	   	c.strokeStyle = this.edge_colour;
 	   	c.stroke();
-	   	c.font = "30px Arial";
+	   	c.font = "25px Arial";
 			c.fillStyle = "black";
 			c.textBaseline = "middle";																								//Changes how the text is aligned depending on its position on the page
 			if (this.weight != 0){
@@ -515,16 +545,33 @@ for (var i = 0; i <JSON_OBj["edges"].length; i++){
 
 	edgeArray.push(new Edge(x_1,y_1,x_2,y_2,weight,index_1,index_2))
 }
+///////////////////////////////////////////////////////////////////////////////
+BackgroundMusic = new sound("Background_Music_V2.wav",true,0.2)
+																																				///Initialises game sounds
+var MusicPlaying = false
+function PlayMusic(){
+	if(MusicPlaying === false){
+		BackgroundMusic.play()
+		MusicPlaying = true
+	} else if(MusicPlaying === true){
+		BackgroundMusic.stop()
+		MusicPlaying = false
+	}
+}
+SelectMusic = new sound("Select.wav",false,1)
+DeselectMusic = new sound("Deselect.wav",false,1)
+VictoryMusic = new sound("Win_v1.wav",false,1)
 /////////////////////////////////////////////////////////////////////////////// Initialises instances of buttons
 var selectbutton = new button((canvas.width)/8, 0.75*(canvas.height), 125, 40, "CHECK", interaction)
 var endbutton = new button((canvas.width)/8, (0.75*(canvas.height)+45), 125, 40, "SUBMIT", endinteraction)
 var resetbutton = new button((canvas.width)/8, (0.75*(canvas.height)+90), 125, 40, "RESET", reset)
 var scramblebutton = new button(6*(canvas.width)/8, (0.75*(canvas.height)+45), 180, 40, "SQUAMBLE", Mix)
+var musicbutton = new button(6*(canvas.width)/8, (0.75*(canvas.height)), 125, 40, "MUSIC", PlayMusic)
 ///////////////////////////////////////////////////////////////////////////////
 function refresh() {																														//This refresh function controls the animation loop.
 	requestAnimationFrame(refresh);
 	c.clearRect(0,0,innerWidth, innerHeight);																			//Clear the page each frame
-	///c.drawImage(img, 0, 0,canvas.width,canvas.height);
+	c.drawImage(img, 0, 0,canvas.width,canvas.height);
 	for (var i = 0; i < edgeArray.length; i++){
 		edgeArray[i].update()																												//redraw the edges each frame
 	}
@@ -536,7 +583,7 @@ function refresh() {																														//This refresh function contro
 	endbutton.update()
 	resetbutton.update()
 	scramblebutton.update()
-
+	musicbutton.update()
 }
 
 refresh();

@@ -101,6 +101,7 @@ if __name__== '__main__': #Test Code
                 
     html3=        """<canvas></canvas>
                 <script src="Qflow.js"></script>
+                <script src="Qflow_Level_Rand_data.js"></script>
             </body>
             </html>"""
         
